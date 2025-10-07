@@ -5,7 +5,6 @@ class CustomClassCard extends StatelessWidget {
   final String imageUrl;
   final String title;
   final double rating;
-  final int reviewCount;
   final String price;
   final List<String> tags;
   final VoidCallback? onTap;
@@ -16,7 +15,6 @@ class CustomClassCard extends StatelessWidget {
     required this.imageUrl,
     required this.title,
     required this.rating,
-    this.reviewCount = 0,
     required this.price,
     required this.tags,
     this.onTap,
@@ -131,17 +129,6 @@ class CustomClassCard extends StatelessWidget {
                           color: Color(0xFF333333),
                         ),
                       ),
-                      if (reviewCount > 0) ...[
-                        SizedBox(width: 4),
-                        Text(
-                          '($reviewCount)',
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFF666666),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                   SizedBox(height: 8),
