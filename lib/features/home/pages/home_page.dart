@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/custom_media_card.dart';
-import '../widgets/custom_class_card.dart';
+import '../../../shared/widgets/custom_media_card.dart';
+import '../../../shared/widgets/custom_class_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import '../../../../core/services/local_storage_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -16,12 +17,41 @@ class _HomePageState extends State<HomePage> {
   final CarouselSliderController _carouselController =
       CarouselSliderController();
 
+  String _userName = 'User';
+  bool _isLoadingName = true;
+
   // List image banner from assets
   final List<String> bannerImages = [
     'assets/images/banner_1.png',
     'assets/images/banner_2.png',
     'assets/images/banner_3.png',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    try {
+      final name = await LocalStorageService.getUserName();
+      if (mounted) {
+        setState(() {
+          _userName = name ?? 'User';
+          _isLoadingName = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading user name: $e');
+      if (mounted) {
+        setState(() {
+          _userName = 'User';
+          _isLoadingName = false;
+        });
+      }
+    }
+  }
 
   Widget _buildDotIndicator() {
     return Row(
@@ -81,14 +111,31 @@ class _HomePageState extends State<HomePage> {
                             color: Colors.white,
                           ),
                         ),
-                        Text(
-                          'Ahmad Sahroni👋',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
+                        _isLoadingName
+                            ? const SizedBox(
+                                width: 100,
+                                height: 20,
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                '$_userName👋',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
                       ],
                     ),
                     Spacer(),
