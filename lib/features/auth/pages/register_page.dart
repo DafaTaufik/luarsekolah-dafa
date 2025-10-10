@@ -22,7 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isRobotChecked = false;
   bool _isLoading = false;
 
-  // Validators menggunakan form_field_validator untuk nama dan email
+  // Validators
   final _nameValidator = MultiValidator([
     RequiredValidator(errorText: 'Nama tidak boleh kosong'),
     MinLengthValidator(3, errorText: 'Nama minimal 3 karakter'),
@@ -33,45 +33,37 @@ class _RegisterPageState extends State<RegisterPage> {
     EmailValidator(errorText: 'Format email tidak valid'),
   ]);
 
-  // Custom validator untuk nomor telepon
   String? _validatePhone(String? value) {
     if (value == null || value.isEmpty) {
       return 'Nomor telepon tidak boleh kosong';
     }
     if (!value.startsWith('62')) {
-      return null; // Error akan ditampilkan di real-time validation
+      return 'Format nomor harus diawali 62';
     }
     if (value.length < 10) {
-      return null; // Error akan ditampilkan di real-time validation
+      return 'Nomor telepon minimal 10 angka';
     }
     return null;
   }
 
-  // Custom validator untuk password
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Password tidak boleh kosong';
     }
-    // Validasi detail akan ditampilkan di real-time validation
-    if (value.length < 8) return null;
-    if (!value.contains(RegExp(r'[A-Z]'))) return null;
-    if (!value.contains(RegExp(r'[0-9]'))) return null;
-    if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) return null;
+    if (value.length < 8) {
+      return 'Password minimal 8 karakter';
+    }
+    if (!value.contains(RegExp(r'[A-Z]'))) {
+      return 'Password harus mengandung minimal 1 huruf kapital';
+    }
+    if (!value.contains(RegExp(r'[0-9]'))) {
+      return 'Password harus mengandung minimal 1 angka';
+    }
+    if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
+      return 'Password harus mengandung minimal 1 karakter simbol';
+    }
     return null;
   }
-
-  // Real-time validation messages
-  List<String> get _phoneValidations => [
-    'Format nomor diawali 62',
-    'Minimal 10 angka',
-  ];
-
-  List<String> get _passwordValidations => [
-    'Minimal 8 karakter',
-    'Terdapat 1 huruf kapital',
-    'Terdapat 1 angka',
-    'Terdapat 1 karakter simbol (!, @, dst)',
-  ];
 
   @override
   void dispose() {
@@ -82,55 +74,24 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
+  void _showSnackBar(String message, Color color) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
+  }
+
   Future<void> _handleRegister() async {
-    // Validasi form
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
-    // Validasi custom untuk nomor telepon
-    String phone = _phoneController.text;
-    if (!phone.startsWith('62') || phone.length < 10) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nomor telepon harus diawali 62 dan minimal 10 angka'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Validasi custom untuk password
-    String password = _passwordController.text;
-    if (password.length < 8 ||
-        !password.contains(RegExp(r'[A-Z]')) ||
-        !password.contains(RegExp(r'[0-9]')) ||
-        !password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password tidak memenuhi persyaratan'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Validasi reCAPTCHA
     if (!_isRobotChecked) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Mohon centang "I\'m not a robot"'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackBar('Mohon centang "I\'m not a robot"', Colors.red);
       return;
     }
 
-    // Set loading state
     setState(() => _isLoading = true);
 
     try {
-      // Simpan data ke SharedPreferences
       final success = await LocalStorageService.saveUserData(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
@@ -139,37 +100,17 @@ class _RegisterPageState extends State<RegisterPage> {
       );
 
       if (success) {
+        _showSnackBar('Registrasi berhasil!', Colors.green);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Registrasi berhasil!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-
-          // Navigate ke home page
           Navigator.pushReplacementNamed(context, AppRoutes.home);
         }
       } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Gagal menyimpan data. Silakan coba lagi.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        _showSnackBar('Gagal menyimpan data. Silakan coba lagi.', Colors.red);
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      _showSnackBar('Error: $e', Colors.red);
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -180,10 +121,7 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20.0,
-              vertical: 20.0,
-            ),
+            padding: const EdgeInsets.all(20.0),
             child: Form(
               key: _formKey,
               child: Column(
@@ -203,14 +141,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     'Satu akun untuk akses Luarsekolah dan BelajarBekerja',
                     style: GoogleFonts.inter(
                       fontSize: 14,
-                      fontWeight: FontWeight.w400,
                       color: const Color(0xFF7B7F95),
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
-                  // Btn Google
                   CustomButton(
                     text: 'Daftar dengan Google',
                     backgroundColor: Colors.white,
@@ -223,79 +157,68 @@ class _RegisterPageState extends State<RegisterPage> {
                       height: 20,
                       width: 20,
                     ),
-                    onPressed: () {
-                      /* handle Google login */
-                    },
+                    onPressed: () {},
                   ),
-
                   const SizedBox(height: 24),
-
                   Center(
                     child: Text(
                       '------------- atau gunakan email -------------',
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        fontWeight: FontWeight.w400,
                         color: const Color(0xFF3F3F4B),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
-                  // Name Input
                   InputFieldRegister(
                     label: 'Nama Lengkap',
                     hintText: 'Masukkan nama lengkapmu',
                     keyboardType: TextInputType.name,
                     controller: _nameController,
                     validator: _nameValidator,
+                    realTimeValidations: const ['Nama minimal 3 karakter'],
                   ),
-
                   const SizedBox(height: 16),
-
-                  // Email Input
                   InputFieldRegister(
                     label: 'Email Aktif',
                     hintText: 'Masukkan alamat emailmu',
                     keyboardType: TextInputType.emailAddress,
                     controller: _emailController,
                     validator: _emailValidator,
+                    realTimeValidations: const [
+                      'Format email yang valid (contoh: nama@email.com)',
+                    ],
                   ),
-
                   const SizedBox(height: 16),
-
-                  // Phone Input with real-time validation
                   InputFieldRegister(
                     label: 'Nomor Whatsapp Aktif',
                     hintText: 'Masukkan nomor whatsapp yang bisa dihubungi',
                     keyboardType: TextInputType.phone,
                     controller: _phoneController,
                     validator: _validatePhone,
-                    realTimeValidations: _phoneValidations,
+                    realTimeValidations: const [
+                      'Format nomor diawali 62',
+                      'Minimal 10 angka',
+                    ],
                   ),
-
                   const SizedBox(height: 16),
-
-                  // Password Input with real-time validation
                   InputFieldRegister(
                     label: 'Password',
                     hintText: 'Masukkan password untuk akunmu',
                     isPassword: true,
                     controller: _passwordController,
                     validator: _validatePassword,
-                    realTimeValidations: _passwordValidations,
+                    realTimeValidations: const [
+                      'Minimal 8 karakter',
+                      'Terdapat 1 huruf kapital',
+                      'Terdapat 1 angka',
+                      'Terdapat 1 karakter simbol (!, @, dst)',
+                    ],
                   ),
-
                   const SizedBox(height: 24),
-
-                  // reCAPTCHA Checkbox
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color(0xFFD3D3D3),
-                        width: 1,
-                      ),
+                      border: Border.all(color: const Color(0xFFD3D3D3)),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     padding: const EdgeInsets.all(12),
@@ -307,9 +230,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: Checkbox(
                             value: _isRobotChecked,
                             onChanged: (value) {
-                              setState(() {
-                                _isRobotChecked = value ?? false;
-                              });
+                              setState(() => _isRobotChecked = value ?? false);
                             },
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(2),
@@ -323,10 +244,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         const SizedBox(width: 12),
                         Text(
                           'I\'m not a robot',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
+                          style: GoogleFonts.inter(fontSize: 14),
                         ),
                         const Spacer(),
                         Column(
@@ -356,23 +274,18 @@ class _RegisterPageState extends State<RegisterPage> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
                   CustomButton(
                     text: _isLoading ? 'Mendaftar...' : 'Daftarkan Akun',
                     backgroundColor: const Color(0xFF077E60),
                     textColor: Colors.white,
                     onPressed: _isLoading ? null : _handleRegister,
                   ),
-
                   const SizedBox(height: 16),
-
                   RichText(
                     text: TextSpan(
                       style: GoogleFonts.inter(
                         fontSize: 14,
-                        fontWeight: FontWeight.w400,
                         color: const Color(0xFF7B7F95),
                       ),
                       children: [
@@ -384,7 +297,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           text: 'syarat dan ketentuan kami',
                           style: GoogleFonts.inter(
                             fontSize: 14,
-                            fontWeight: FontWeight.w400,
                             color: const Color(0xFF4169E1),
                             decoration: TextDecoration.underline,
                           ),
@@ -392,10 +304,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
-                  // Button Have Account
                   CustomButton(
                     text: '',
                     backgroundColor: const Color(0xFFEFF5FF),
@@ -409,18 +318,13 @@ class _RegisterPageState extends State<RegisterPage> {
                         const Text('👋', style: TextStyle(fontSize: 20)),
                         const SizedBox(width: 2),
                         const Text(
-                          'Sudah punya akun? ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black,
-                          ),
+                          'Punya akun? ',
+                          style: TextStyle(fontSize: 14, color: Colors.black),
                         ),
                         Text(
                           'Masuk ke Akunmu',
                           style: GoogleFonts.inter(
                             fontSize: 14,
-                            fontWeight: FontWeight.w400,
                             color: const Color(0xFF2570EB),
                             decoration: TextDecoration.underline,
                             decorationColor: Colors.blue,

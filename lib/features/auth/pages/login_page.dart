@@ -39,12 +39,12 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _handleLogin() async {
-    // Validasi form
+    // Validation form
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    // Validasi reCAPTCHA
+    // Validation reCAPTCHA
     if (!_isRobotChecked) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -59,15 +59,15 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      // Ambil data dari SharedPreferences
+      // Get data from SharedPreferences
       final storedEmail = await LocalStorageService.getUserEmail();
       final storedPassword = await LocalStorageService.getUserPassword();
 
-      // Input dari user
+      // Input from user
       final inputEmail = _emailController.text.trim();
       final inputPassword = _passwordController.text;
 
-      // Validasi apakah user sudah terdaftar
+      // Validate if user is registered
       if (storedEmail == null || storedPassword == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -82,9 +82,9 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      // Validasi email dan password
+      // Validate email and password
       if (inputEmail == storedEmail && inputPassword == storedPassword) {
-        // Login berhasil - set status login
+        // Login success - set login status
         await LocalStorageService.setLoginStatus(true);
 
         if (mounted) {
@@ -95,11 +95,11 @@ class _LoginPageState extends State<LoginPage> {
             ),
           );
 
-          // Navigate ke home page
+          // Navigate to home page
           Navigator.pushReplacementNamed(context, AppRoutes.home);
         }
       } else {
-        // Login gagal
+        // Login failed
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

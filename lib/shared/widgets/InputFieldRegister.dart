@@ -70,7 +70,7 @@ class _InputFieldRegisterState extends State<InputFieldRegister> {
       return AppColors.borderField;
     }
 
-    // For fields with real-time validations (phone & password)
+    // For fields with real-time validations
     if (widget.realTimeValidations != null &&
         widget.realTimeValidations!.isNotEmpty) {
       return _allValidationsPassed() ? AppColors.secondary : Colors.red;
@@ -200,6 +200,7 @@ class _InputFieldRegisterState extends State<InputFieldRegister> {
     if (widget.controller == null) return false;
     String value = widget.controller!.text;
 
+    // Password validations
     if (message.contains('Minimal 8 karakter')) {
       return value.length >= 8;
     } else if (message.contains('1 huruf kapital')) {
@@ -208,11 +209,26 @@ class _InputFieldRegisterState extends State<InputFieldRegister> {
       return value.contains(RegExp(r'[0-9]'));
     } else if (message.contains('1 karakter simbol')) {
       return value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
-    } else if (message.contains('Minimal 10 angka')) {
+    }
+    // Phone validations
+    else if (message.contains('Minimal 10 angka')) {
       return value.length >= 10;
     } else if (message.contains('Format nomor diawali 62')) {
       return value.startsWith('62');
     }
+    // Name validation
+    else if (message.contains('Nama minimal 3 karakter')) {
+      return value.length >= 3;
+    }
+    // Email validation
+    else if (message.contains('Format email valid')) {
+      // Basic email validation regex
+      final emailRegex = RegExp(
+        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+      );
+      return emailRegex.hasMatch(value);
+    }
+
     return false;
   }
 }

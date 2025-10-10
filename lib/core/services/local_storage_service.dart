@@ -2,8 +2,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/storage_keys.dart';
 
 /// Service for managing local storage using SharedPreferences
-///
-/// Provides methods to save, retrieve, and clear user data.
 
 class LocalStorageService {
   // Singleton pattern

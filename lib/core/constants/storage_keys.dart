@@ -24,7 +24,5 @@ class StorageKeys {
   static const String userJobStatus = 'user_job_status';
 
   // ==================== App Settings ====================
-  static const String isDarkMode = 'is_dark_mode';
-  static const String language = 'language';
   static const String notificationEnabled = 'notification_enabled';
 }
