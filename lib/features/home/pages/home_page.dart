@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../shared/widgets/custom_media_card.dart';
-import '../../../shared/widgets/custom_class_card.dart';
+import '../../../shared/widgets/CustomMediaCard.dart';
+import '../../../shared/widgets/CustomClassCard.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../../../../core/services/local_storage_service.dart';
 
