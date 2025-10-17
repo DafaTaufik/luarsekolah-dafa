@@ -68,24 +68,45 @@ class _CourseCardState extends State<CourseCard> {
               // Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  widget.imageUrl,
-                  width: 120,
-                  height: 120,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: 120,
-                      height: 120,
-                      color: const Color(0xFFA7AAB9).withOpacity(0.2),
-                      child: const Icon(
-                        Icons.image,
-                        size: 40,
-                        color: AppColors.textNeutralLow,
+                child: widget.imageUrl.startsWith('http')
+                    ? Image.network(
+                        // For URL
+                        widget.imageUrl,
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 120,
+                            height: 120,
+                            color: const Color(0xFFA7AAB9).withOpacity(0.2),
+                            child: const Icon(
+                              Icons.image,
+                              size: 40,
+                              color: AppColors.textNeutralLow,
+                            ),
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        // For local assets
+                        widget.imageUrl,
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: 120,
+                            height: 120,
+                            color: const Color(0xFFA7AAB9).withOpacity(0.2),
+                            child: const Icon(
+                              Icons.image,
+                              size: 40,
+                              color: AppColors.textNeutralLow,
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
               const SizedBox(width: 12),
 
@@ -98,7 +119,7 @@ class _CourseCardState extends State<CourseCard> {
                     Text(
                       widget.title,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         height: 1.3,
                         color: AppColors.textPrimary,
@@ -115,8 +136,8 @@ class _CourseCardState extends State<CourseCard> {
                       children: widget.types.map((type) {
                         return Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
+                            horizontal: 10,
+                            vertical: 4,
                           ),
                           decoration: BoxDecoration(
                             color: _getTypeColor(type),
@@ -127,7 +148,7 @@ class _CourseCardState extends State<CourseCard> {
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         );
@@ -139,7 +160,7 @@ class _CourseCardState extends State<CourseCard> {
                     Text(
                       'Rp ${widget.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textNeutralHigh,
                       ),

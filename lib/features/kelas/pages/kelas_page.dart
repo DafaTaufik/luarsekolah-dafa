@@ -72,7 +72,7 @@ class KelasPage extends StatelessWidget {
                 child: ListView(
                   children: [
                     CourseCard(
-                      imageUrl: 'https://picsum.photos/200/300',
+                      imageUrl: 'assets/images/class_1.png',
                       title: 'Teknik Pemilahan dan Pengolahan Sampah',
                       types: const [CourseType.prakerja, CourseType.spl],
                       price: 1500000,
@@ -89,7 +89,7 @@ class KelasPage extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     CourseCard(
-                      imageUrl: 'https://picsum.photos/200/301',
+                      imageUrl: 'assets/images/class_2.png',
                       title:
                           'Pembuatan Pestisida Ramah Lingkungan untuk Petani Terampil',
                       types: const [CourseType.prakerja],
