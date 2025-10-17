@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../shared/widgets/CourseCard.dart';
+import '../../../shared/widgets/course_card.dart';
 
 class KelasPage extends StatelessWidget {
   const KelasPage({super.key});
