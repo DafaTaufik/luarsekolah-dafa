@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CustomClassCard extends StatelessWidget {
+class HomeClassCard extends StatelessWidget {
   final String imageUrl;
   final String title;
   final double rating;
@@ -10,7 +10,7 @@ class CustomClassCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isAsset;
 
-  const CustomClassCard({
+  const HomeClassCard({
     Key? key,
     required this.imageUrl,
     required this.title,
