@@ -328,7 +328,7 @@ class _LoginPageState extends State<LoginPage> {
                     backgroundColor: const Color(0xFFEFF5FF),
                     borderColor: const Color(0xFF2570EB),
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         AppRoutes.slideTransition(const RegisterPage()),
                       );

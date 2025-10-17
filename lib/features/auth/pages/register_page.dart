@@ -316,7 +316,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     backgroundColor: const Color(0xFFEFF5FF),
                     borderColor: const Color(0xFF2570EB),
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         AppRoutes.slideTransition(const LoginPage()),
                       );
