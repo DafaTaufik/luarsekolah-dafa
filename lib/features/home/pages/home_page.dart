@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/widgets/CustomMediaCard.dart';
-import '../../../shared/widgets/CustomClassCard.dart';
+import '../../../shared/widgets/HomeClassCard.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../../../../core/services/local_storage_service.dart';
 
@@ -356,7 +356,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             SizedBox(height: 16),
 
-                            CustomClassCard(
+                            HomeClassCard(
                               imageUrl: 'assets/images/media_1.png',
                               title: 'Teknik Pemilahan dan Pengolahan Sampah',
                               rating: 4.5,
