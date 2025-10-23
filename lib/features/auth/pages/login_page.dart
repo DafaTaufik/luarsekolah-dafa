@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:luarsekolah/shared/widgets/InputFieldLogin.dart';
-import '../../../shared/widgets/CustomButton.dart';
+import 'package:luarsekolah/shared/widgets/input_field_login.dart';
+import '../../../shared/widgets/custom_button.dart';
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/services/local_storage_service.dart';
 
@@ -96,7 +96,11 @@ class _LoginPageState extends State<LoginPage> {
           );
 
           // Navigate to home page
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.home,
+            (route) => false,
+          );
         }
       } else {
         // Login failed
@@ -322,7 +326,10 @@ class _LoginPageState extends State<LoginPage> {
                     backgroundColor: const Color(0xFFEFF5FF),
                     borderColor: const Color(0xFF2570EB),
                     onPressed: () {
-                      Navigator.pushNamed(context, AppRoutes.register);
+                      Navigator.pushReplacementNamed(
+                        context,
+                        AppRoutes.register,
+                      );
                     },
                     customContent: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

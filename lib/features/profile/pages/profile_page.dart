@@ -29,7 +29,10 @@ class ProfilePage extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushNamed(AppRoutes.editProfile);
+                    Navigator.of(
+                      context,
+                      rootNavigator: true,
+                    ).pushNamed(AppRoutes.editProfile);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,

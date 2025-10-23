@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import '../../../shared/widgets/CustomButton.dart';
-import '../../../shared/widgets/InputFieldRegister.dart';
+import '../../../shared/widgets/custom_button.dart';
+import '../../../shared/widgets/input_field_register.dart';
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/services/local_storage_service.dart';
 
@@ -102,7 +102,11 @@ class _RegisterPageState extends State<RegisterPage> {
       if (success) {
         _showSnackBar('Registrasi berhasil!', Colors.green);
         if (mounted) {
-          Navigator.pushReplacementNamed(context, AppRoutes.home);
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.home,
+            (route) => false,
+          );
         }
       } else {
         _showSnackBar('Gagal menyimpan data. Silakan coba lagi.', Colors.red);
@@ -310,7 +314,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     backgroundColor: const Color(0xFFEFF5FF),
                     borderColor: const Color(0xFF2570EB),
                     onPressed: () {
-                      Navigator.pushNamed(context, AppRoutes.login);
+                      Navigator.pushReplacementNamed(context, AppRoutes.login);
                     },
                     customContent: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
