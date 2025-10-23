@@ -44,13 +44,13 @@ class AppRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case login:
-        return MaterialPageRoute(builder: (_) => const LoginPage());
+        return fadeTransition(const LoginPage());
       case register:
-        return MaterialPageRoute(builder: (_) => const RegisterPage());
+        return slideTransition(const RegisterPage());
       case home:
-        return MaterialPageRoute(builder: (_) => const MainNavigation());
+        return fadeTransition(const MainNavigation());
       case editProfile:
-        return MaterialPageRoute(builder: (_) => const EditProfilePage());
+        return slideTransition(const EditProfilePage());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

@@ -4,8 +4,6 @@ import 'package:form_field_validator/form_field_validator.dart';
 import 'package:luarsekolah/shared/widgets/input_field_login.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../../core/constants/app_routes.dart';
-import './register_page.dart';
-import '../../../../main_navigation.dart';
 import '../../../../core/services/local_storage_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -98,9 +96,9 @@ class _LoginPageState extends State<LoginPage> {
           );
 
           // Navigate to home page
-          Navigator.pushAndRemoveUntil(
+          Navigator.pushNamedAndRemoveUntil(
             context,
-            AppRoutes.fadeTransition(const MainNavigation()),
+            AppRoutes.home,
             (route) => false,
           );
         }
@@ -328,9 +326,9 @@ class _LoginPageState extends State<LoginPage> {
                     backgroundColor: const Color(0xFFEFF5FF),
                     borderColor: const Color(0xFF2570EB),
                     onPressed: () {
-                      Navigator.pushReplacement(
+                      Navigator.pushReplacementNamed(
                         context,
-                        AppRoutes.slideTransition(const RegisterPage()),
+                        AppRoutes.register,
                       );
                     },
                     customContent: Row(

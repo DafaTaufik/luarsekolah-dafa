@@ -4,8 +4,6 @@ import 'package:form_field_validator/form_field_validator.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/input_field_register.dart';
 import '../../../../core/constants/app_routes.dart';
-import './login_page.dart';
-import '../../../../main_navigation.dart';
 import '../../../../core/services/local_storage_service.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -104,9 +102,9 @@ class _RegisterPageState extends State<RegisterPage> {
       if (success) {
         _showSnackBar('Registrasi berhasil!', Colors.green);
         if (mounted) {
-          Navigator.pushAndRemoveUntil(
+          Navigator.pushNamedAndRemoveUntil(
             context,
-            AppRoutes.fadeTransition(const MainNavigation()),
+            AppRoutes.home,
             (route) => false,
           );
         }
@@ -316,10 +314,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     backgroundColor: const Color(0xFFEFF5FF),
                     borderColor: const Color(0xFF2570EB),
                     onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        AppRoutes.slideTransition(const LoginPage()),
-                      );
+                      Navigator.pushReplacementNamed(context, AppRoutes.login);
                     },
                     customContent: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

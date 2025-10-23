@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_routes.dart';
-import 'edit_profile.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -33,7 +32,7 @@ class ProfilePage extends StatelessWidget {
                     Navigator.of(
                       context,
                       rootNavigator: true,
-                    ).push(AppRoutes.slideTransition(const EditProfilePage()));
+                    ).pushNamed(AppRoutes.editProfile);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
