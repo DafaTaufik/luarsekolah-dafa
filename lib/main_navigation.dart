@@ -6,6 +6,7 @@ import 'features/profile/pages/profile_page.dart';
 import 'core/constants/app_colors.dart';
 import 'features/kelasku/pages/kelasku_page.dart';
 import 'features/koinLs/pages/koinLs_page.dart';
+import 'features/todo/pages/todo_list_page.dart';
 
 class MainNavigation extends StatelessWidget {
   const MainNavigation({super.key});
@@ -50,6 +51,17 @@ class MainNavigation extends StatelessWidget {
         item: ItemConfig(
           icon: const Icon(Icons.monetization_on),
           title: "KoinLs",
+          activeForegroundColor: AppColors.greenDecorative,
+          inactiveForegroundColor: Colors.grey,
+          iconSize: 23,
+          textStyle: const TextStyle(fontSize: 11),
+        ),
+      ),
+      PersistentTabConfig(
+        screen: const TodoListPage(),
+        item: ItemConfig(
+          icon: const Icon(Icons.task_alt),
+          title: "Todo",
           activeForegroundColor: AppColors.greenDecorative,
           inactiveForegroundColor: Colors.grey,
           iconSize: 23,
