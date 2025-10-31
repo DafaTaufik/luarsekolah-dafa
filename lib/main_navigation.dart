@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:luarsekolah/features/kelas/pages/kelas_page.dart';
+import 'package:luarsekolah/features/class/presentation/pages/class_page.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'features/home/pages/home_page.dart';
 import 'features/profile/pages/profile_page.dart';
 import 'core/constants/app_colors.dart';
-import 'features/kelasku/pages/kelasku_page.dart';
+import 'features/myclass/pages/myclass_page.dart';
 import 'features/koinLs/pages/koinLs_page.dart';
 import 'features/todo/pages/todo_list_page.dart';
 
@@ -25,7 +25,7 @@ class MainNavigation extends StatelessWidget {
         ),
       ),
       PersistentTabConfig(
-        screen: const KelasPage(),
+        screen: const ClassPage(),
         item: ItemConfig(
           icon: const Icon(Icons.class_),
           title: "Kelas",
