@@ -9,7 +9,7 @@ class CourseService {
   CourseService(this._dioClient);
 
   /// Get list of courses with optional filtering
-  /// Parameters: [limit]: Number of items per page, [offset]: Number of items to skip, [categoryTag]: List of category tags
+  /// Parameters: [limit], [offset], [categoryTag]
   Future<CourseListResponse> getCourses({
     int? limit,
     int? offset,
