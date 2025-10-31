@@ -47,7 +47,6 @@ class CourseService {
   }
 
   /// Create course
-  /// Parameters:[request]
   Future<Course> createCourse(CreateCourseRequest request) async {
     try {
       final response = await _dioClient.dio.post(
@@ -87,8 +86,9 @@ class CourseService {
   /// Handle Dio errors and convert to custom exceptions
   CourseException _handleError(DioException error) {
     if (error.response != null) {
-      final statusCode = error.response!.statusCode;
-      final data = error.response!.data;
+      final response = error.response!;
+      final statusCode = response.statusCode;
+      final data = response.data;
 
       // Parse error response
       String message = 'An error occurred';
