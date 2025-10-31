@@ -3,7 +3,7 @@ import 'package:luarsekolah/features/todo/models/todo.dart';
 import 'package:luarsekolah/features/todo/pages/add_todo_page.dart';
 import 'package:luarsekolah/features/todo/services/todo_service.dart';
 import 'package:luarsekolah/core/constants/app_colors.dart';
-import 'package:luarsekolah/features/todo/services/dio_client.dart';
+import 'package:luarsekolah/core/services/dio_client.dart';
 import 'package:luarsekolah/features/todo/widgets/todo_card.dart';
 import 'package:luarsekolah/features/todo/widgets/todo_loading_state.dart';
 import 'package:luarsekolah/features/todo/widgets/todo_error_state.dart';
