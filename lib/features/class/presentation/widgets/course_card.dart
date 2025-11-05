@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_colors.dart';
 
 enum CourseType { prakerja, spl }
 
@@ -68,28 +68,20 @@ class _CourseCardState extends State<CourseCard> {
               // Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: widget.imageUrl.startsWith('http')
-                    ? Image.network(
-                        // For URL
-                        widget.imageUrl,
+                child: widget.imageUrl.isEmpty
+                    ? Container(
+                        // Empty/No thumbnail
                         width: 120,
                         height: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 120,
-                            height: 120,
-                            color: const Color(0xFFA7AAB9).withOpacity(0.2),
-                            child: const Icon(
-                              Icons.image,
-                              size: 40,
-                              color: AppColors.textNeutralLow,
-                            ),
-                          );
-                        },
+                        color: const Color(0xFFA7AAB9).withOpacity(0.2),
+                        child: const Icon(
+                          Icons.image_outlined,
+                          size: 40,
+                          color: AppColors.textNeutralLow,
+                        ),
                       )
-                    : Image.asset(
-                        // For local assets
+                    : Image.network(
+                        // For URL from API
                         widget.imageUrl,
                         width: 120,
                         height: 120,
@@ -100,7 +92,7 @@ class _CourseCardState extends State<CourseCard> {
                             height: 120,
                             color: const Color(0xFFA7AAB9).withOpacity(0.2),
                             child: const Icon(
-                              Icons.image,
+                              Icons.broken_image_outlined,
                               size: 40,
                               color: AppColors.textNeutralLow,
                             ),
@@ -213,26 +205,6 @@ class _CourseCardState extends State<CourseCard> {
                 },
                 itemBuilder: (BuildContext context) => [
                   PopupMenuItem<String>(
-                    value: 'delete',
-                    child: Row(
-                      children: const [
-                        Icon(
-                          Icons.delete_outline,
-                          size: 20,
-                          color: AppColors.textPrimary,
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          'Delete',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem<String>(
                     value: 'edit',
                     child: Row(
                       children: const [
@@ -244,6 +216,26 @@ class _CourseCardState extends State<CourseCard> {
                         SizedBox(width: 12),
                         Text(
                           'Edit',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'delete',
+                    child: Row(
+                      children: const [
+                        Icon(
+                          Icons.delete_outline,
+                          size: 20,
+                          color: AppColors.textPrimary,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Delete',
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.textPrimary,

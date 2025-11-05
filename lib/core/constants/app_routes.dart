@@ -3,12 +3,17 @@ import '../../features/auth/pages/login_page.dart';
 import '../../features/auth/pages/register_page.dart';
 import '../../features/profile/pages/edit_profile.dart';
 import '../../main_navigation.dart';
+import 'package:luarsekolah/features/class/presentation/pages/add_class_page.dart';
+import 'package:luarsekolah/features/class/presentation/pages/edit_class_page.dart';
+import 'package:luarsekolah/features/class/models/course.dart';
 
 class AppRoutes {
   static const String login = '/';
   static const String register = '/register';
   static const String home = '/home';
   static const String editProfile = '/editProfile';
+  static const String editClass = '/editClass';
+  static const String addClass = '/addClass';
 
   // Fade transition helper
   static Route<dynamic> fadeTransition(Widget page) {
@@ -51,6 +56,19 @@ class AppRoutes {
         return fadeTransition(const MainNavigation());
       case editProfile:
         return slideTransition(const EditProfilePage());
+      case editClass:
+        // Expect Course object as argument
+        final course = settings.arguments as Course?;
+        if (course == null) {
+          return MaterialPageRoute(
+            builder: (_) => Scaffold(
+              body: Center(child: Text('Error: Course data is required')),
+            ),
+          );
+        }
+        return slideTransition(EditClassPage(course: course));
+      case addClass:
+        return slideTransition(const AddClassPage());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
