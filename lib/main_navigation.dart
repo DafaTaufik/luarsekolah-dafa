@@ -6,7 +6,7 @@ import 'features/profile/pages/profile_page.dart';
 import 'core/constants/app_colors.dart';
 import 'features/myclass/pages/myclass_page.dart';
 import 'features/koinLs/pages/koinLs_page.dart';
-import 'features/todo/pages/todo_list_page.dart';
+import 'features/todo/presentation/pages/todo_list_page.dart';
 
 class MainNavigation extends StatelessWidget {
   const MainNavigation({super.key});
@@ -58,7 +58,7 @@ class MainNavigation extends StatelessWidget {
         ),
       ),
       PersistentTabConfig(
-        screen: const TodoListPage(),
+        screen: TodoListPage(),
         item: ItemConfig(
           icon: const Icon(Icons.task_alt),
           title: "Todo",

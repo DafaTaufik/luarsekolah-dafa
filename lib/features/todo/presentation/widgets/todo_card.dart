@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:luarsekolah/features/todo/models/todo.dart';
+import 'package:luarsekolah/features/todo/data/models/todo.dart';
 import 'package:luarsekolah/core/constants/app_colors.dart';
 
 class TodoCard extends StatelessWidget {

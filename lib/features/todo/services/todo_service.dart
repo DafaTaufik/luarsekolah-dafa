@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:luarsekolah/features/todo/models/todo.dart';
-import 'package:luarsekolah/features/todo/models/todo_list_response.dart';
-import 'package:luarsekolah/features/todo/models/delete_response.dart';
-import 'package:luarsekolah/features/todo/models/error_response.dart';
+import 'package:luarsekolah/features/todo/data/models/todo.dart';
+import 'package:luarsekolah/features/todo/data/models/todo_list_response.dart';
+import 'package:luarsekolah/features/todo/data/models/delete_response.dart';
+import 'package:luarsekolah/features/todo/data/models/error_response.dart';
 
 class TodoService {
   final Dio dio;
