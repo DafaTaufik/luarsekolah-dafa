@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:luarsekolah/shared/widgets/custom_button.dart';
 import 'package:luarsekolah/core/constants/app_colors.dart';
-import 'package:luarsekolah/features/class/models/course.dart';
-import 'package:luarsekolah/features/class/controllers/class_controller.dart';
+import 'package:luarsekolah/features/class/data/models/course.dart';
+import 'package:luarsekolah/features/class/presentation/controllers/class_controller.dart';
 
 class AddClassPage extends StatefulWidget {
   const AddClassPage({super.key});
@@ -86,8 +86,10 @@ class _AddClassPageState extends State<AddClassPage> {
     });
 
     if (success) {
-      // Navigate back to class page
-      Navigator.of(context, rootNavigator: true).pop();
+      // Navigate back to class page after successful creation
+      if (mounted) {
+        Get.back();
+      }
     }
   }
 
@@ -285,7 +287,7 @@ class _AddClassPageState extends State<AddClassPage> {
                   onPressed: _isLoading
                       ? null
                       : () {
-                          Navigator.of(context, rootNavigator: true).pop();
+                          Get.back();
                         },
                 ),
               ],

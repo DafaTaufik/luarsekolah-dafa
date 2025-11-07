@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:luarsekolah/features/todo/data/models/todo.dart';
 import 'package:luarsekolah/core/constants/app_colors.dart';
 
@@ -51,7 +52,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
       );
 
       if (mounted) {
-        Navigator.pop(context, todo);
+        Get.back(result: todo);
       }
     } catch (e) {
       if (mounted) {
@@ -88,7 +89,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Get.back(),
         ),
       ),
       body: SingleChildScrollView(
@@ -195,7 +196,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                 SizedBox(
                   height: 50,
                   child: OutlinedButton(
-                    onPressed: _isLoading ? null : () => Navigator.pop(context),
+                    onPressed: _isLoading ? null : () => Get.back(),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: Colors.grey[400]!),
                       shape: RoundedRectangleBorder(

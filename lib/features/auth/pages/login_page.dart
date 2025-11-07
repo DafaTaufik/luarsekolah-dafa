@@ -3,8 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:luarsekolah/shared/widgets/input_field_login.dart';
 import '../../../shared/widgets/custom_button.dart';
-import '../../../../core/constants/app_routes.dart';
+import '../../routes/app_routes.dart';
 import '../../../../core/services/local_storage_service.dart';
+import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -96,11 +97,7 @@ class _LoginPageState extends State<LoginPage> {
           );
 
           // Navigate to home page
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.home,
-            (route) => false,
-          );
+          Get.offAllNamed(AppRoutes.home);
         }
       } else {
         // Login failed
@@ -326,10 +323,7 @@ class _LoginPageState extends State<LoginPage> {
                     backgroundColor: const Color(0xFFEFF5FF),
                     borderColor: const Color(0xFF2570EB),
                     onPressed: () {
-                      Navigator.pushReplacementNamed(
-                        context,
-                        AppRoutes.register,
-                      );
+                      Get.offNamed(AppRoutes.register);
                     },
                     customContent: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

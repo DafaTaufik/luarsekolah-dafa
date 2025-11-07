@@ -7,6 +7,7 @@ import 'package:luarsekolah/features/todo/domain/usecases/create_todo_usecase.da
 import 'package:luarsekolah/features/todo/domain/usecases/update_todo_usecase.dart';
 import 'package:luarsekolah/features/todo/domain/usecases/delete_todo_usecase.dart';
 import 'package:luarsekolah/features/todo/domain/usecases/toggle_todo_completion_usecase.dart';
+import 'package:luarsekolah/features/todo/presentation/controllers/todo_controller.dart';
 import 'package:luarsekolah/core/services/dio_client.dart';
 
 class TodoBinding extends Bindings {
@@ -20,5 +21,6 @@ class TodoBinding extends Bindings {
     Get.lazyPut(() => UpdateTodoUseCase(Get.find()));
     Get.lazyPut(() => DeleteTodoUseCase(Get.find()));
     Get.lazyPut(() => ToggleTodoCompletionUseCase(Get.find()));
+    Get.lazyPut(() => TodoController(), fenix: true);
   }
 }

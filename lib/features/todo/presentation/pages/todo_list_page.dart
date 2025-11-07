@@ -9,11 +9,12 @@ import 'package:luarsekolah/features/todo/presentation/widgets/todo_error_state.
 import 'package:luarsekolah/features/todo/presentation/controllers/todo_controller.dart';
 
 class TodoListPage extends StatelessWidget {
-  TodoListPage({super.key});
-  final TodoController controller = Get.put(TodoController(), permanent: true);
+  const TodoListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<TodoController>();
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -43,9 +44,8 @@ class TodoListPage extends StatelessWidget {
               final todo = controller.todos[index];
               return TodoCard(
                 todo: todo,
-                onEdit: (todo) => _editTodo(context, controller, todo),
-                onDelete: (todo) =>
-                    _showDeleteDialog(context, controller, todo),
+                onEdit: (todo) => _editTodo(controller, todo),
+                onDelete: (todo) => _showDeleteDialog(controller, todo),
                 onToggle: todo.id != null
                     ? () => controller.toggleTodoComplete(todo.id!)
                     : null,
@@ -56,10 +56,7 @@ class TodoListPage extends StatelessWidget {
       }),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final result = await Navigator.push<Todo>(
-            context,
-            MaterialPageRoute(builder: (context) => const AddTodoPage()),
-          );
+          final result = await Get.to<Todo>(() => const AddTodoPage());
           if (result != null) {
             await controller.addTodo(result);
           }
@@ -95,38 +92,23 @@ class TodoListPage extends StatelessWidget {
     );
   }
 
-  void _editTodo(
-    BuildContext context,
-    TodoController controller,
-    Todo todo,
-  ) async {
-    final result = await Navigator.push<Todo>(
-      context,
-      MaterialPageRoute(builder: (context) => AddTodoPage(todo: todo)),
-    );
+  void _editTodo(TodoController controller, Todo todo) async {
+    final result = await Get.to<Todo>(() => AddTodoPage(todo: todo));
     if (result != null) {
       await controller.updateTodo(result);
     }
   }
 
-  void _showDeleteDialog(
-    BuildContext context,
-    TodoController controller,
-    Todo todo,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+  void _showDeleteDialog(TodoController controller, Todo todo) {
+    Get.dialog(
+      AlertDialog(
         title: const Text('Hapus Todo'),
         content: Text('Apakah Anda yakin ingin menghapus "${todo.text}"?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Batal')),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Get.back();
               if (todo.id != null) controller.deleteTodo(todo.id!);
             },
             child: const Text('Hapus', style: TextStyle(color: Colors.red)),

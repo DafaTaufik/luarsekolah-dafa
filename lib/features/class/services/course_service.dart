@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:luarsekolah/features/class/models/course.dart';
+import 'package:luarsekolah/features/class/data/models/course.dart';
 import 'course_exception.dart';
 import 'package:luarsekolah/core/services/dio_client.dart';
 
