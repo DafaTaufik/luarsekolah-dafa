@@ -10,7 +10,7 @@ import 'package:luarsekolah/features/todo/presentation/pages/todo_list_page.dart
 import 'package:luarsekolah/features/todo/presentation/pages/add_todo_page.dart';
 import 'package:luarsekolah/features/todo/presentation/bindings/todo_binding.dart';
 import 'package:luarsekolah/features/class/presentation/pages/class_page.dart';
-import 'package:luarsekolah/features/class/bindings/class_binding.dart';
+import 'package:luarsekolah/features/class/presentation/bindings/class_binding.dart';
 // import route lain seperti login dan lain-lain di sini
 
 class AppRoutes {
