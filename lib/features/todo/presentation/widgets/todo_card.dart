@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:luarsekolah/features/todo/models/todo.dart';
+import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
 import 'package:luarsekolah/core/constants/app_colors.dart';
 
 class TodoCard extends StatelessWidget {
-  final Todo todo;
+  final TodoEntity todo;
   final VoidCallback? onToggle;
-  final Function(Todo) onEdit;
-  final Function(Todo) onDelete;
+  final Function(TodoEntity) onEdit;
+  final Function(TodoEntity) onDelete;
 
   const TodoCard({
     super.key,

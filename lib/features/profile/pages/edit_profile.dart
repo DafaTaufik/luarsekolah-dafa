@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/services/local_storage_service.dart';
 import '../../../shared/widgets/custom_button.dart';
@@ -109,7 +110,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 backgroundColor: Color(0xFF077E60),
               ),
             );
-            Navigator.pop(context);
+            Get.back();
           }
         } else {
           if (mounted) {
@@ -151,7 +152,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Get.back(),
         ),
         title: const Text(
           'Edit Profile',

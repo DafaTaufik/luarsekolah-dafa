@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'core/constants/app_routes.dart';
+import 'features/routes/app_routes.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       initialRoute: AppRoutes.login,
-      onGenerateRoute: AppRoutes.generateRoute,
+      getPages: AppRoutes.getPages,
     );
   }
 }

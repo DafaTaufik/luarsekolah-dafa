@@ -1,12 +1,16 @@
 import 'package:get/get.dart';
-import 'package:luarsekolah/features/class/models/course.dart';
-import 'package:luarsekolah/features/class/services/course_service.dart';
+import 'package:luarsekolah/features/class/data/models/models.dart';
 import 'package:luarsekolah/features/class/services/course_exception.dart';
+import 'package:luarsekolah/features/class/domain/usecases/get_courses_usecase.dart';
+import 'package:luarsekolah/features/class/domain/usecases/create_course_usecase.dart';
+import 'package:luarsekolah/features/class/domain/usecases/update_course_usecase.dart';
+import 'package:luarsekolah/features/class/domain/usecases/delete_course_usecase.dart';
 
 class ClassController extends GetxController {
-  final CourseService _courseService;
-
-  ClassController(this._courseService);
+  final GetCoursesUseCase _getCourses = Get.find();
+  final CreateCourseUseCase _createCourse = Get.find();
+  final UpdateCourseUseCase _updateCourse = Get.find();
+  final DeleteCourseUseCase _deleteCourse = Get.find();
 
   // Observable states
   final _isLoading = false.obs;
@@ -32,8 +36,7 @@ class ClassController extends GetxController {
       _isLoading.value = true;
       _hasError.value = false;
       _errorMessage.value = '';
-
-      final response = await _courseService.getCourses();
+      final response = await _getCourses();
       _courses.value = response.courses;
     } on CourseNetworkException catch (e) {
       _hasError.value = true;
@@ -55,10 +58,8 @@ class ClassController extends GetxController {
   /// Delete a course by ID
   Future<void> deleteCourse(String id) async {
     try {
-      await _courseService.deleteCourse(id);
-      // Remove from local list
+      await _deleteCourse(id);
       _courses.removeWhere((course) => course.id == id);
-
       Get.snackbar(
         'Berhasil',
         'Kelas berhasil dihapus',
@@ -81,16 +82,13 @@ class ClassController extends GetxController {
   }
 
   /// Update a course by ID
-  Future<bool> updateCourse(String id, UpdateCourseRequest request) async {
+  Future<bool> updateCourse(String id, CourseRequest request) async {
     try {
-      final updatedCourse = await _courseService.updateCourse(id, request);
-
-      // Update in local list
+      final updatedCourse = await _updateCourse(id, request);
       final index = _courses.indexWhere((course) => course.id == id);
       if (index != -1) {
         _courses[index] = updatedCourse;
       }
-
       Get.snackbar(
         'Berhasil',
         'Kelas berhasil diperbarui',
@@ -111,13 +109,10 @@ class ClassController extends GetxController {
   }
 
   /// Create a new course
-  Future<bool> createCourse(CreateCourseRequest request) async {
+  Future<bool> createCourse(CourseRequest request) async {
     try {
-      final newCourse = await _courseService.createCourse(request);
-
-      // Add to local list
+      final newCourse = await _createCourse(request);
       _courses.insert(0, newCourse);
-
       Get.snackbar(
         'Berhasil',
         'Kelas berhasil ditambahkan',

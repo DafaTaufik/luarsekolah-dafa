@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:luarsekolah/features/todo/models/todo.dart';
+import 'package:get/get.dart';
+import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
 import 'package:luarsekolah/core/constants/app_colors.dart';
 
 class AddTodoPage extends StatefulWidget {
-  final Todo? todo;
+  final TodoEntity? todo;
 
   const AddTodoPage({super.key, this.todo});
 
@@ -42,16 +43,18 @@ class _AddTodoPageState extends State<AddTodoPage> {
     try {
       await Future.delayed(const Duration(milliseconds: 500));
 
-      final todo = Todo(
-        id: _isEditing ? widget.todo!.id : null,
-        text: _textController.text.trim(),
-        completed: _isEditing ? widget.todo!.completed : false,
-        createdAt: _isEditing ? widget.todo!.createdAt : null,
-        updatedAt: _isEditing ? widget.todo!.updatedAt : null,
-      );
+      final todo = _isEditing
+          ? widget.todo!.copyWith(text: _textController.text.trim())
+          : TodoEntity(
+              id: '', // Will be set by API
+              text: _textController.text.trim(),
+              completed: false,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            );
 
       if (mounted) {
-        Navigator.pop(context, todo);
+        Get.back(result: todo);
       }
     } catch (e) {
       if (mounted) {
@@ -88,7 +91,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Get.back(),
         ),
       ),
       body: SingleChildScrollView(
@@ -195,7 +198,7 @@ class _AddTodoPageState extends State<AddTodoPage> {
                 SizedBox(
                   height: 50,
                   child: OutlinedButton(
-                    onPressed: _isLoading ? null : () => Navigator.pop(context),
+                    onPressed: _isLoading ? null : () => Get.back(),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: Colors.grey[400]!),
                       shape: RoundedRectangleBorder(

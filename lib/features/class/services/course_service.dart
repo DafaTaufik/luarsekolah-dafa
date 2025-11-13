@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:luarsekolah/features/class/models/course.dart';
+import 'package:luarsekolah/features/class/data/models/models.dart';
 import 'course_exception.dart';
 import 'package:luarsekolah/core/services/dio_client.dart';
 
@@ -47,7 +47,7 @@ class CourseService {
   }
 
   /// Create course
-  Future<Course> createCourse(CreateCourseRequest request) async {
+  Future<Course> createCourse(CourseRequest request) async {
     try {
       final response = await _dioClient.dio.post(
         '/courses',
@@ -61,7 +61,7 @@ class CourseService {
 
   /// Update course
   /// Parameters: [id],[request]
-  Future<Course> updateCourse(String id, UpdateCourseRequest request) async {
+  Future<Course> updateCourse(String id, CourseRequest request) async {
     try {
       final response = await _dioClient.dio.put(
         '/course/$id',

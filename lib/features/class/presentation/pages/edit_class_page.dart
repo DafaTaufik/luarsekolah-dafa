@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:luarsekolah/shared/widgets/custom_button.dart';
 import 'package:luarsekolah/core/constants/app_colors.dart';
-import 'package:luarsekolah/features/class/models/course.dart';
-import 'package:luarsekolah/features/class/controllers/class_controller.dart';
+import 'package:luarsekolah/features/class/data/models/models.dart';
+import 'package:luarsekolah/features/class/presentation/controllers/class_controller.dart';
 
 class EditClassPage extends StatefulWidget {
   final Course course;
@@ -83,7 +83,7 @@ class _EditClassPageState extends State<EditClassPage> {
     });
 
     // Create update request
-    final updateRequest = UpdateCourseRequest(
+    final updateRequest = CourseRequest(
       name: _nameController.text.trim(),
       price: _priceController.text.trim(),
       categoryTag: _selectedCategories,
@@ -108,7 +108,7 @@ class _EditClassPageState extends State<EditClassPage> {
 
     if (success) {
       // Navigate back to class page
-      Navigator.of(context, rootNavigator: true).pop();
+      Get.back();
     }
   }
 
@@ -306,7 +306,7 @@ class _EditClassPageState extends State<EditClassPage> {
                   onPressed: _isLoading
                       ? null
                       : () {
-                          Navigator.of(context, rootNavigator: true).pop();
+                          Get.back();
                         },
                 ),
               ],
