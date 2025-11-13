@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:luarsekolah/features/todo/data/models/todo.dart';
+import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
 import 'package:luarsekolah/features/todo/domain/usecases/get_todos_usecase.dart';
 import 'package:luarsekolah/features/todo/domain/usecases/create_todo_usecase.dart';
 import 'package:luarsekolah/features/todo/domain/usecases/update_todo_usecase.dart';
@@ -8,7 +8,7 @@ import 'package:luarsekolah/features/todo/domain/usecases/toggle_todo_completion
 
 class TodoController extends GetxController {
   // State
-  final todos = <Todo>[].obs;
+  final todos = <TodoEntity>[].obs;
   final isLoading = false.obs;
   final errorMessage = RxnString();
 
@@ -38,7 +38,7 @@ class TodoController extends GetxController {
     }
   }
 
-  Future<void> addTodo(Todo todo) async {
+  Future<void> addTodo(TodoEntity todo) async {
     try {
       final createdTodo = await _createTodo(todo);
       todos.add(createdTodo);
@@ -47,10 +47,9 @@ class TodoController extends GetxController {
     }
   }
 
-  Future<void> updateTodo(Todo todo) async {
-    if (todo.id == null) return;
+  Future<void> updateTodo(TodoEntity todo) async {
     try {
-      final updated = await _updateTodo(todo.id!, todo);
+      final updated = await _updateTodo(todo.id, todo);
       final idx = todos.indexWhere((t) => t.id == todo.id);
       if (idx != -1) todos[idx] = updated;
     } catch (e) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:luarsekolah/features/todo/data/models/todo.dart';
+import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
 import 'package:luarsekolah/features/todo/presentation/pages/add_todo_page.dart';
 import 'package:luarsekolah/core/constants/app_colors.dart';
 import 'package:luarsekolah/features/todo/presentation/widgets/todo_card.dart';
@@ -46,9 +46,7 @@ class TodoListPage extends StatelessWidget {
                 todo: todo,
                 onEdit: (todo) => _editTodo(controller, todo),
                 onDelete: (todo) => _showDeleteDialog(controller, todo),
-                onToggle: todo.id != null
-                    ? () => controller.toggleTodoComplete(todo.id!)
-                    : null,
+                onToggle: () => controller.toggleTodoComplete(todo.id),
               );
             },
           );
@@ -56,7 +54,7 @@ class TodoListPage extends StatelessWidget {
       }),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final result = await Get.to<Todo>(() => const AddTodoPage());
+          final result = await Get.to<TodoEntity>(() => const AddTodoPage());
           if (result != null) {
             await controller.addTodo(result);
           }
@@ -92,14 +90,14 @@ class TodoListPage extends StatelessWidget {
     );
   }
 
-  void _editTodo(TodoController controller, Todo todo) async {
-    final result = await Get.to<Todo>(() => AddTodoPage(todo: todo));
+  void _editTodo(TodoController controller, TodoEntity todo) async {
+    final result = await Get.to<TodoEntity>(() => AddTodoPage(todo: todo));
     if (result != null) {
       await controller.updateTodo(result);
     }
   }
 
-  void _showDeleteDialog(TodoController controller, Todo todo) {
+  void _showDeleteDialog(TodoController controller, TodoEntity todo) {
     Get.dialog(
       AlertDialog(
         title: const Text('Hapus Todo'),
@@ -109,7 +107,7 @@ class TodoListPage extends StatelessWidget {
           TextButton(
             onPressed: () {
               Get.back();
-              if (todo.id != null) controller.deleteTodo(todo.id!);
+              controller.deleteTodo(todo.id);
             },
             child: const Text('Hapus', style: TextStyle(color: Colors.red)),
           ),

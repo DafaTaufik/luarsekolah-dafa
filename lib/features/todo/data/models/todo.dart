@@ -1,16 +1,12 @@
-class Todo {
-  final String? id;
-  final String text;
-  final bool completed;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
+import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
 
-  Todo({
-    this.id,
-    required this.text,
-    this.completed = false,
-    this.createdAt,
-    this.updatedAt,
+class Todo extends TodoEntity {
+  const Todo({
+    required super.id,
+    required super.text,
+    required super.completed,
+    required super.createdAt,
+    required super.updatedAt,
   });
 
   factory Todo.fromJson(Map<String, dynamic> json) {
@@ -25,5 +21,16 @@ class Todo {
 
   Map<String, dynamic> toJson() {
     return {'text': text, 'completed': completed};
+  }
+
+  // Helper to convert TodoEntity to Todo (for repository usage)
+  factory Todo.fromEntity(TodoEntity entity) {
+    return Todo(
+      id: entity.id,
+      text: entity.text,
+      completed: entity.completed,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
   }
 }

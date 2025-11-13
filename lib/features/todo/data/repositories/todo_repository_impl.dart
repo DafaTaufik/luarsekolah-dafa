@@ -1,27 +1,18 @@
 import 'package:dio/dio.dart';
+import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
+import 'package:luarsekolah/features/todo/domain/repositories/todo_repository.dart';
 import 'package:luarsekolah/features/todo/data/models/todo.dart';
 import 'package:luarsekolah/features/todo/data/models/todo_list_response.dart';
-import 'package:luarsekolah/features/todo/data/models/delete_response.dart';
 import 'package:luarsekolah/features/todo/data/models/error_response.dart';
 
-class TodoService {
+class TodoRepositoryImpl implements TodoRepository {
   final Dio dio;
 
-  TodoService(this.dio);
-
-  /// POST /todos
-  Future<Todo> createTodo(Todo todo) async {
-    try {
-      final response = await dio.post('/todos', data: todo.toJson());
-      return Todo.fromJson(response.data);
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
+  TodoRepositoryImpl(this.dio);
 
   /// GET /todos
   /// Query params: limit, offset, completed
-  Future<TodoListResponse> getTodoList({
+  Future<TodoListResponse> getTodos({
     int limit = 10,
     int offset = 0,
     bool? completed,
@@ -35,7 +26,6 @@ class TodoService {
       }
 
       final response = await dio.get('/todos', queryParameters: queryParams);
-
       return TodoListResponse.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -43,7 +33,7 @@ class TodoService {
   }
 
   /// GET /todos/{id}
-  Future<Todo> getTodoById(String id) async {
+  Future<TodoEntity> getTodoById(String id) async {
     try {
       final response = await dio.get('/todos/$id');
       return Todo.fromJson(response.data);
@@ -52,10 +42,22 @@ class TodoService {
     }
   }
 
-  /// PUT /todos/{id}
-  Future<Todo> updateTodo(String id, Todo todo) async {
+  /// POST /todos
+  Future<TodoEntity> createTodo(TodoEntity todo) async {
     try {
-      final response = await dio.put('/todos/$id', data: todo.toJson());
+      final todoModel = Todo.fromEntity(todo);
+      final response = await dio.post('/todos', data: todoModel.toJson());
+      return Todo.fromJson(response.data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// PUT /todos/{id}
+  Future<TodoEntity> updateTodo(String id, TodoEntity todo) async {
+    try {
+      final todoModel = Todo.fromEntity(todo);
+      final response = await dio.put('/todos/$id', data: todoModel.toJson());
       return Todo.fromJson(response.data);
     } on DioException catch (e) {
       throw _handleError(e);
@@ -63,17 +65,16 @@ class TodoService {
   }
 
   /// DELETE /todos/{id}
-  Future<DeleteResponse> deleteTodo(String id) async {
+  Future<void> deleteTodo(String id) async {
     try {
-      final response = await dio.delete('/todos/$id');
-      return DeleteResponse.fromJson(response.data);
+      await dio.delete('/todos/$id');
     } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
   /// PATCH /todos/{id}/toggle
-  Future<Todo> toggleTodoCompletion(String id) async {
+  Future<TodoEntity> toggleTodoCompletion(String id) async {
     try {
       final response = await dio.patch('/todos/$id/toggle');
       return Todo.fromJson(response.data);

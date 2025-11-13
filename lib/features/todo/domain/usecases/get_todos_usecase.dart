@@ -1,4 +1,4 @@
-import 'package:luarsekolah/features/todo/data/repositories/todo_repository.dart';
+import 'package:luarsekolah/features/todo/domain/repositories/todo_repository.dart';
 import 'package:luarsekolah/features/todo/data/models/todo_list_response.dart';
 
 class GetTodosUseCase {

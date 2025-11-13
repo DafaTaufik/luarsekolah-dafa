@@ -1,7 +1,8 @@
+import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
 import 'todo.dart';
 
 class TodoListResponse {
-  final List<Todo> todos;
+  final List<TodoEntity> todos;
   final int total;
   final int limit;
   final int offset;

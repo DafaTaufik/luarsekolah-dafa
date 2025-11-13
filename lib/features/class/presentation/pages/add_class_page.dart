@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:luarsekolah/shared/widgets/custom_button.dart';
 import 'package:luarsekolah/core/constants/app_colors.dart';
-import 'package:luarsekolah/features/class/data/models/course.dart';
+import 'package:luarsekolah/features/class/data/models/models.dart';
 import 'package:luarsekolah/features/class/presentation/controllers/class_controller.dart';
 
 class AddClassPage extends StatefulWidget {
@@ -65,7 +65,7 @@ class _AddClassPageState extends State<AddClassPage> {
     });
 
     // Create request
-    final createRequest = CreateCourseRequest(
+    final createRequest = CourseRequest(
       name: _nameController.text.trim(),
       price: _priceController.text.trim(),
       categoryTag: _selectedCategories,

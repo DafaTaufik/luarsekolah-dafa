@@ -1,5 +1,5 @@
 import 'package:luarsekolah/features/class/services/course_service.dart';
-import 'package:luarsekolah/features/class/data/models/course.dart';
+import 'package:luarsekolah/features/class/data/models/models.dart';
 
 class ClassRepository {
   final CourseService courseService;
@@ -21,11 +21,11 @@ class ClassRepository {
     return courseService.getCourseById(id);
   }
 
-  Future<Course> createCourse(CreateCourseRequest request) {
+  Future<Course> createCourse(CourseRequest request) {
     return courseService.createCourse(request);
   }
 
-  Future<Course> updateCourse(String id, UpdateCourseRequest request) {
+  Future<Course> updateCourse(String id, CourseRequest request) {
     return courseService.updateCourse(id, request);
   }
 

@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:luarsekolah/features/class/data/models/course.dart';
+import 'package:luarsekolah/features/class/data/models/models.dart';
 import 'package:luarsekolah/features/class/services/course_exception.dart';
 import 'package:luarsekolah/features/class/domain/usecases/get_courses_usecase.dart';
 import 'package:luarsekolah/features/class/domain/usecases/create_course_usecase.dart';
@@ -82,7 +82,7 @@ class ClassController extends GetxController {
   }
 
   /// Update a course by ID
-  Future<bool> updateCourse(String id, UpdateCourseRequest request) async {
+  Future<bool> updateCourse(String id, CourseRequest request) async {
     try {
       final updatedCourse = await _updateCourse(id, request);
       final index = _courses.indexWhere((course) => course.id == id);
@@ -109,7 +109,7 @@ class ClassController extends GetxController {
   }
 
   /// Create a new course
-  Future<bool> createCourse(CreateCourseRequest request) async {
+  Future<bool> createCourse(CourseRequest request) async {
     try {
       final newCourse = await _createCourse(request);
       _courses.insert(0, newCourse);
