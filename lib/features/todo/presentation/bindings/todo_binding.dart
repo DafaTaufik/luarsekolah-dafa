@@ -1,8 +1,6 @@
 import 'package:get/get.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:luarsekolah/features/todo/domain/repositories/todo_repository.dart';
-import 'package:luarsekolah/features/todo/data/repositories/todo_repository_impl.dart';
+import 'package:luarsekolah/features/todo/data/repositories/todo_firebase_repository_impl.dart';
 import 'package:luarsekolah/features/todo/domain/usecases/get_todos_usecase.dart';
 import 'package:luarsekolah/features/todo/domain/usecases/get_todo_by_id_usecase.dart';
 import 'package:luarsekolah/features/todo/domain/usecases/create_todo_usecase.dart';
@@ -14,11 +12,7 @@ import 'package:luarsekolah/features/todo/presentation/controllers/todo_controll
 class TodoBinding extends Bindings {
   @override
   void dependencies() {
-    // Repository - inject implementation as interface with Firestore
-    Get.lazyPut<TodoRepository>(
-      () =>
-          TodoRepositoryImpl(FirebaseFirestore.instance, FirebaseAuth.instance),
-    );
+    Get.lazyPut<TodoRepository>(() => TodoFirebaseRepositoryImpl());
 
     // UseCases
     Get.lazyPut(() => GetTodosUseCase(Get.find()));

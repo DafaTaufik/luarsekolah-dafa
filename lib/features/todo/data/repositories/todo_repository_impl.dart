@@ -1,164 +1,116 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dio/dio.dart';
 import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
 import 'package:luarsekolah/features/todo/domain/repositories/todo_repository.dart';
 import 'package:luarsekolah/features/todo/data/models/todo.dart';
 import 'package:luarsekolah/features/todo/data/models/todo_list_response.dart';
+import 'package:luarsekolah/features/todo/data/models/error_response.dart';
 
 class TodoRepositoryImpl implements TodoRepository {
-  final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
+  final Dio dio;
 
-  TodoRepositoryImpl(this.firestore, this.auth);
+  TodoRepositoryImpl(this.dio);
 
-  // Get current user's todos collection reference
-  CollectionReference get _todosCollection {
-    final userId = auth.currentUser?.uid;
-    if (userId == null) {
-      throw Exception('User not authenticated');
-    }
-    return firestore.collection('users').doc(userId).collection('todos');
-  }
-
-  /// Get todos from Firestore
+  /// GET /todos
   /// Query params: limit, offset, completed
-  @override
   Future<TodoListResponse> getTodos({
     int limit = 10,
     int offset = 0,
     bool? completed,
   }) async {
     try {
-      Query query = _todosCollection.orderBy('createdAt', descending: true);
+      final queryParams = <String, dynamic>{'limit': limit, 'offset': offset};
 
       // Add completed filter if provided
       if (completed != null) {
-        query = query.where('completed', isEqualTo: completed);
+        queryParams['completed'] = completed;
       }
 
-      // Apply limit
-      query = query.limit(limit);
-
-      final snapshot = await query.get();
-      final todos = snapshot.docs
-          .map((doc) => Todo.fromFirestore(doc))
-          .toList();
-
-      return TodoListResponse(
-        todos: todos,
-        total: todos.length,
-        limit: limit,
-        offset: offset,
-      );
-    } catch (e) {
+      final response = await dio.get('/todos', queryParameters: queryParams);
+      return TodoListResponse.fromJson(response.data);
+    } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
-  /// Get todo by ID from Firestore
-  @override
+  /// GET /todos/{id}
   Future<TodoEntity> getTodoById(String id) async {
     try {
-      final doc = await _todosCollection.doc(id).get();
-      if (!doc.exists) {
-        throw Exception('Todo not found');
-      }
-      return Todo.fromFirestore(doc);
-    } catch (e) {
+      final response = await dio.get('/todos/$id');
+      return Todo.fromJson(response.data);
+    } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
-  /// Create todo in Firestore
-  @override
+  /// POST /todos
   Future<TodoEntity> createTodo(TodoEntity todo) async {
     try {
-      final now = DateTime.now();
-      final docRef = _todosCollection.doc();
-
-      final newTodo = Todo(
-        id: docRef.id,
-        text: todo.text,
-        completed: false,
-        createdAt: now,
-        updatedAt: now,
-      );
-
-      await docRef.set(newTodo.toFirestore());
-      return newTodo;
-    } catch (e) {
+      final todoModel = Todo.fromEntity(todo);
+      final response = await dio.post('/todos', data: todoModel.toJson());
+      return Todo.fromJson(response.data);
+    } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
-  /// Update todo in Firestore
-  @override
+  /// PUT /todos/{id}
   Future<TodoEntity> updateTodo(String id, TodoEntity todo) async {
     try {
-      final updatedTodo = Todo(
-        id: id,
-        text: todo.text,
-        completed: todo.completed,
-        createdAt: todo.createdAt,
-        updatedAt: DateTime.now(),
-      );
-
-      await _todosCollection.doc(id).update(updatedTodo.toFirestore());
-      return updatedTodo;
-    } catch (e) {
+      final todoModel = Todo.fromEntity(todo);
+      final response = await dio.put('/todos/$id', data: todoModel.toJson());
+      return Todo.fromJson(response.data);
+    } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
-  /// Delete todo from Firestore
-  @override
+  /// DELETE /todos/{id}
   Future<void> deleteTodo(String id) async {
     try {
-      await _todosCollection.doc(id).delete();
-    } catch (e) {
+      await dio.delete('/todos/$id');
+    } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
-  /// Toggle todo completion in Firestore
-  @override
+  /// PATCH /todos/{id}/toggle
   Future<TodoEntity> toggleTodoCompletion(String id) async {
     try {
-      final doc = await _todosCollection.doc(id).get();
-      if (!doc.exists) {
-        throw Exception('Todo not found');
-      }
-
-      final currentTodo = Todo.fromFirestore(doc);
-      final updatedTodo = Todo(
-        id: id,
-        text: currentTodo.text,
-        completed: !currentTodo.completed,
-        createdAt: currentTodo.createdAt,
-        updatedAt: DateTime.now(),
-      );
-
-      await _todosCollection.doc(id).update(updatedTodo.toFirestore());
-      return updatedTodo;
-    } catch (e) {
+      final response = await dio.patch('/todos/$id/toggle');
+      return Todo.fromJson(response.data);
+    } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
-  /// Private method to handle errors
-  String _handleError(dynamic error) {
-    if (error is FirebaseException) {
-      switch (error.code) {
-        case 'permission-denied':
-          return 'Akses ditolak. Silakan login kembali.';
-        case 'not-found':
-          return 'Data tidak ditemukan.';
-        case 'unavailable':
-          return 'Layanan tidak tersedia. Silakan coba lagi.';
+  /// Private method to handle DioException errors
+  String _handleError(DioException error) {
+    if (error.response != null) {
+      // Server responded with error
+      try {
+        final errorResponse = ErrorResponse.fromJson(error.response!.data);
+        return errorResponse.message;
+      } catch (e) {
+        // If parsing fails, return generic message
+        return error.response?.data['message'] ??
+            'Server error: ${error.response?.statusCode}';
+      }
+    } else {
+      // Network error or timeout
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+          return 'Connection timeout. Please check your internet connection.';
+        case DioExceptionType.sendTimeout:
+          return 'Send timeout. Please try again.';
+        case DioExceptionType.receiveTimeout:
+          return 'Receive timeout. Server is taking too long to respond.';
+        case DioExceptionType.connectionError:
+          return 'Connection error. Please check your internet connection.';
+        case DioExceptionType.cancel:
+          return 'Request cancelled.';
         default:
-          return error.message ?? 'Terjadi kesalahan';
+          return error.message ?? 'Unknown error occurred';
       }
     }
-    return error.toString();
   }
 }
