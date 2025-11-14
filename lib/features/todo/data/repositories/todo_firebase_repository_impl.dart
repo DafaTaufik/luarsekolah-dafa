@@ -9,8 +9,6 @@ class TodoFirebaseRepositoryImpl implements TodoRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  TodoFirebaseRepositoryImpl();
-
   // Get current user's todos collection reference
   CollectionReference get _todosCollection {
     final userId = _auth.currentUser?.uid;
@@ -22,11 +20,7 @@ class TodoFirebaseRepositoryImpl implements TodoRepository {
 
   /// Get todos from Firestore
   @override
-  Future<TodoListResponse> getTodos({
-    int limit = 10,
-    int offset = 0,
-    bool? completed,
-  }) async {
+  Future<TodoListResponse> getTodos({int limit = 10, bool? completed}) async {
     try {
       Query query = _todosCollection.orderBy('createdAt', descending: true);
 
@@ -42,12 +36,7 @@ class TodoFirebaseRepositoryImpl implements TodoRepository {
           .map((doc) => Todo.fromFirestore(doc))
           .toList();
 
-      return TodoListResponse(
-        todos: todos,
-        total: todos.length,
-        limit: limit,
-        offset: offset,
-      );
+      return TodoListResponse(todos: todos, total: todos.length, limit: limit);
     } catch (e) {
       throw _handleError(e);
     }

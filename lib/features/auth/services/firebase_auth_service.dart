@@ -81,15 +81,6 @@ class FirebaseAuthService {
     return _firestore.collection('users').doc(uid).snapshots();
   }
 
-  // Send email verification
-  Future<void> sendEmailVerification() async {
-    try {
-      await currentUser?.sendEmailVerification();
-    } catch (e) {
-      throw Exception('Gagal mengirim email verifikasi: $e');
-    }
-  }
-
   // Reload current user
   Future<void> reloadUser() async {
     await currentUser?.reload();
@@ -115,15 +106,6 @@ class FirebaseAuthService {
       await reloadUser();
     } catch (e) {
       throw Exception('Gagal mengupdate profile: $e');
-    }
-  }
-
-  // Delete user account
-  Future<void> deleteAccount() async {
-    try {
-      await currentUser?.delete();
-    } on FirebaseAuthException catch (e) {
-      throw _handleAuthException(e);
     }
   }
 

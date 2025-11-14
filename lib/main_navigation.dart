@@ -108,7 +108,7 @@ class MainNavigation extends StatelessWidget {
         ),
       ),
       PersistentTabConfig(
-        screen: const ProfilePage(),
+        screen: ProfilePage(),
         item: ItemConfig(
           icon: const Icon(Icons.person),
           title: "Profile",

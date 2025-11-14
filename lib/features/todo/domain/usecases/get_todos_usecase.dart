@@ -10,10 +10,6 @@ class GetTodosUseCase {
     int offset = 0,
     bool? completed,
   }) {
-    return repository.getTodos(
-      limit: limit,
-      offset: offset,
-      completed: completed,
-    );
+    return repository.getTodos(limit: limit, completed: completed);
   }
 }
