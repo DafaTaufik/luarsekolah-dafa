@@ -4,7 +4,7 @@ import 'package:form_field_validator/form_field_validator.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/input_field_register.dart';
 import '../../routes/app_routes.dart';
-import '../../../../core/services/local_storage_service.dart';
+import '../services/firebase_auth_service.dart';
 import 'package:get/get.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -20,6 +20,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authService = FirebaseAuthService();
   bool _isRobotChecked = false;
   bool _isLoading = false;
 
@@ -93,20 +94,21 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _isLoading = true);
 
     try {
-      final success = await LocalStorageService.saveUserData(
-        name: _nameController.text.trim(),
+      // Register with Firebase Auth and save to Firestore
+      final result = await _authService.registerWithEmailPassword(
         email: _emailController.text.trim(),
-        phone: _phoneController.text.trim(),
         password: _passwordController.text,
+        name: _nameController.text.trim(),
+        phone: _phoneController.text.trim(),
       );
 
-      if (success) {
-        _showSnackBar('Registrasi berhasil!', Colors.green);
-        if (mounted) {
+      if (mounted) {
+        if (result['success']) {
+          _showSnackBar(result['message'], Colors.green);
           Get.offAllNamed(AppRoutes.home);
+        } else {
+          _showSnackBar(result['message'], Colors.red);
         }
-      } else {
-        _showSnackBar('Gagal menyimpan data. Silakan coba lagi.', Colors.red);
       }
     } catch (e) {
       _showSnackBar('Error: $e', Colors.red);
