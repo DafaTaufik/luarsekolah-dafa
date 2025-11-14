@@ -94,24 +94,26 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _isLoading = true);
 
     try {
-      // Register with Firebase Auth and save to Firestore
-      final result = await _authService.registerWithEmailPassword(
+      // Register with Firebase Auth
+      final userCredential = await _authService.registerWithEmailPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
+      );
+
+      // Save user data to Firestore
+      await _authService.saveUserData(
+        uid: userCredential.user!.uid,
         name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
         phone: _phoneController.text.trim(),
       );
 
       if (mounted) {
-        if (result['success']) {
-          _showSnackBar(result['message'], Colors.green);
-          Get.offAllNamed(AppRoutes.home);
-        } else {
-          _showSnackBar(result['message'], Colors.red);
-        }
+        _showSnackBar('Registrasi berhasil!', Colors.green);
+        Get.offAllNamed(AppRoutes.home);
       }
     } catch (e) {
-      _showSnackBar('Error: $e', Colors.red);
+      _showSnackBar(e.toString(), Colors.red);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

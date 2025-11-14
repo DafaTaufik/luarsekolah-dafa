@@ -5,79 +5,59 @@ class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Get current user
   User? get currentUser => _auth.currentUser;
 
+  // Stream Listen for auth state changes (login/logout)
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
+
   // Register with email and password
-  Future<Map<String, dynamic>> registerWithEmailPassword({
+  Future<UserCredential> registerWithEmailPassword({
     required String email,
     required String password,
+  }) async {
+    try {
+      final userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
+  // Save user data
+  Future<void> saveUserData({
+    required String uid,
     required String name,
+    required String email,
     required String phone,
   }) async {
     try {
-      // Create user in Firebase Auth
-      UserCredential userCredential = await _auth
-          .createUserWithEmailAndPassword(email: email, password: password);
-
-      // Save user data to Firestore
-      await _firestore.collection('users').doc(userCredential.user!.uid).set({
+      await _firestore.collection('users').doc(uid).set({
         'name': name,
         'email': email,
         'phone': phone,
         'createdAt': FieldValue.serverTimestamp(),
       });
-
-      return {
-        'success': true,
-        'message': 'Registrasi berhasil!',
-        'user': userCredential.user,
-      };
-    } on FirebaseAuthException catch (e) {
-      String message = 'Terjadi kesalahan';
-      if (e.code == 'weak-password') {
-        message = 'Password terlalu lemah';
-      } else if (e.code == 'email-already-in-use') {
-        message = 'Email sudah terdaftar';
-      } else if (e.code == 'invalid-email') {
-        message = 'Format email tidak valid';
-      }
-      return {'success': false, 'message': message};
     } catch (e) {
-      return {'success': false, 'message': 'Error: $e'};
+      throw Exception('Gagal menyimpan data pengguna: $e');
     }
   }
 
   // Login with email and password
-  Future<Map<String, dynamic>> loginWithEmailPassword({
+  Future<UserCredential> loginWithEmailPassword({
     required String email,
     required String password,
   }) async {
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      final userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-
-      return {
-        'success': true,
-        'message': 'Login berhasil!',
-        'user': userCredential.user,
-      };
+      return userCredential;
     } on FirebaseAuthException catch (e) {
-      String message = 'Terjadi kesalahan';
-      if (e.code == 'user-not-found') {
-        message = 'Email tidak terdaftar';
-      } else if (e.code == 'wrong-password') {
-        message = 'Password salah';
-      } else if (e.code == 'invalid-email') {
-        message = 'Format email tidak valid';
-      } else if (e.code == 'invalid-credential') {
-        message = 'Email atau password salah';
-      }
-      return {'success': false, 'message': message};
-    } catch (e) {
-      return {'success': false, 'message': 'Error: $e'};
+      throw _handleAuthException(e);
     }
   }
 
@@ -86,19 +66,92 @@ class FirebaseAuthService {
     await _auth.signOut();
   }
 
-  // Get user data from Firestore
+  // Get user data
   Future<Map<String, dynamic>?> getUserData(String uid) async {
     try {
-      DocumentSnapshot doc = await _firestore
-          .collection('users')
-          .doc(uid)
-          .get();
-      if (doc.exists) {
-        return doc.data() as Map<String, dynamic>;
-      }
-      return null;
+      final doc = await _firestore.collection('users').doc(uid).get();
+      return doc.exists ? doc.data() : null;
     } catch (e) {
-      return null;
+      throw Exception('Gagal mengambil data pengguna: $e');
+    }
+  }
+
+  // Stream to get real-time user data
+  Stream<DocumentSnapshot<Map<String, dynamic>>> getUserDataStream(String uid) {
+    return _firestore.collection('users').doc(uid).snapshots();
+  }
+
+  // Send email verification
+  Future<void> sendEmailVerification() async {
+    try {
+      await currentUser?.sendEmailVerification();
+    } catch (e) {
+      throw Exception('Gagal mengirim email verifikasi: $e');
+    }
+  }
+
+  // Reload current user
+  Future<void> reloadUser() async {
+    await currentUser?.reload();
+  }
+
+  // Send password reset email
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
+  // Update user profile (displayName)
+  Future<void> updateUserProfile({
+    String? displayName,
+    String? photoURL,
+  }) async {
+    try {
+      await currentUser?.updateDisplayName(displayName);
+      await currentUser?.updatePhotoURL(photoURL);
+      await reloadUser();
+    } catch (e) {
+      throw Exception('Gagal mengupdate profile: $e');
+    }
+  }
+
+  // Delete user account
+  Future<void> deleteAccount() async {
+    try {
+      await currentUser?.delete();
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
+  // Helper method to handle FirebaseAuthException
+  String _handleAuthException(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'weak-password':
+        return 'Password terlalu lemah. Gunakan minimal 6 karakter.';
+      case 'email-already-in-use':
+        return 'Email sudah terdaftar. Gunakan email lain atau login.';
+      case 'invalid-email':
+        return 'Format email tidak valid.';
+      case 'user-not-found':
+        return 'Email tidak terdaftar.';
+      case 'wrong-password':
+        return 'Password salah.';
+      case 'invalid-credential':
+        return 'Email atau password salah.';
+      case 'user-disabled':
+        return 'Akun telah dinonaktifkan.';
+      case 'too-many-requests':
+        return 'Terlalu banyak percobaan. Coba lagi nanti.';
+      case 'operation-not-allowed':
+        return 'Operasi tidak diizinkan.';
+      case 'requires-recent-login':
+        return 'Silakan login kembali untuk melanjutkan operasi ini.';
+      default:
+        return 'Terjadi kesalahan: ${e.message ?? e.code}';
     }
   }
 }

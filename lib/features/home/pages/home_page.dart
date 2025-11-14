@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/widgets/custom_media_card.dart';
 import '../../../shared/widgets/home_class_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import '../../../../core/services/local_storage_service.dart';
+import '../widgets/user_header.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -17,9 +17,6 @@ class _HomePageState extends State<HomePage> {
   final CarouselSliderController _carouselController =
       CarouselSliderController();
 
-  String _userName = 'User';
-  bool _isLoadingName = true;
-
   // List image banner from assets
   final List<String> bannerImages = [
     'assets/images/banner_1.png',
@@ -30,27 +27,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _loadUserName();
-  }
-
-  Future<void> _loadUserName() async {
-    try {
-      final name = await LocalStorageService.getUserName();
-      if (mounted) {
-        setState(() {
-          _userName = name ?? 'User';
-          _isLoadingName = false;
-        });
-      }
-    } catch (e) {
-      print('Error loading user name: $e');
-      if (mounted) {
-        setState(() {
-          _userName = 'User';
-          _isLoadingName = false;
-        });
-      }
-    }
   }
 
   Widget _buildDotIndicator() {
@@ -81,79 +57,8 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Section
-              Container(
-                color: Color(0xFF1DB892),
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 28,
-                  bottom: 58,
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundImage: NetworkImage(
-                        'https://i.pravatar.cc/500',
-                      ),
-                      backgroundColor: Colors.white,
-                    ),
-                    SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Halo,',
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.white,
-                          ),
-                        ),
-                        _isLoadingName
-                            ? const SizedBox(
-                                width: 100,
-                                height: 20,
-                                child: Center(
-                                  child: SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : Text(
-                                '$_userName👋',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                      ],
-                    ),
-                    Spacer(),
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.notifications_outlined,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Header Section with Firebase Stream
+              const UserHeader(),
 
               Transform.translate(
                 offset: Offset(0, -30),
