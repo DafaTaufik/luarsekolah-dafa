@@ -21,7 +21,6 @@ class TodoFirebaseRepositoryImpl implements TodoRepository {
   }
 
   /// Get todos from Firestore
-  /// Query params: limit, offset, completed
   @override
   Future<TodoListResponse> getTodos({
     int limit = 10,
@@ -36,7 +35,6 @@ class TodoFirebaseRepositoryImpl implements TodoRepository {
         query = query.where('completed', isEqualTo: completed);
       }
 
-      // Apply limit
       query = query.limit(limit);
 
       final snapshot = await query.get();

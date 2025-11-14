@@ -12,6 +12,7 @@ class TodoRepositoryImpl implements TodoRepository {
 
   /// GET /todos
   /// Query params: limit, offset, completed
+  @override
   Future<TodoListResponse> getTodos({
     int limit = 10,
     int offset = 0,
@@ -33,6 +34,7 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   /// GET /todos/{id}
+  @override
   Future<TodoEntity> getTodoById(String id) async {
     try {
       final response = await dio.get('/todos/$id');
@@ -43,6 +45,7 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   /// POST /todos
+  @override
   Future<TodoEntity> createTodo(TodoEntity todo) async {
     try {
       final todoModel = Todo.fromEntity(todo);
@@ -54,6 +57,7 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   /// PUT /todos/{id}
+  @override
   Future<TodoEntity> updateTodo(String id, TodoEntity todo) async {
     try {
       final todoModel = Todo.fromEntity(todo);
@@ -65,6 +69,7 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   /// DELETE /todos/{id}
+  @override
   Future<void> deleteTodo(String id) async {
     try {
       await dio.delete('/todos/$id');
@@ -74,6 +79,7 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   /// PATCH /todos/{id}/toggle
+  @override
   Future<TodoEntity> toggleTodoCompletion(String id) async {
     try {
       final response = await dio.patch('/todos/$id/toggle');
