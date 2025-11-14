@@ -7,7 +7,7 @@ class FirebaseAuthService {
 
   User? get currentUser => _auth.currentUser;
 
-  // Stream Listen for auth state changes (login/logout)
+  // Stream Listen for auth state changes
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   // Register with email and password
