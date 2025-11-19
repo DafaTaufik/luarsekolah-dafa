@@ -4,7 +4,7 @@ import 'package:form_field_validator/form_field_validator.dart';
 import 'package:luarsekolah/shared/widgets/input_field_login.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../routes/app_routes.dart';
-import '../../../../core/services/local_storage_service.dart';
+import '../services/firebase_auth_service.dart';
 import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,6 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authService = FirebaseAuthService();
   bool _isRobotChecked = false;
   bool _isLoading = false;
 
@@ -60,60 +61,27 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      // Get data from SharedPreferences
-      final storedEmail = await LocalStorageService.getUserEmail();
-      final storedPassword = await LocalStorageService.getUserPassword();
+      // Login with Firebase Auth
+      await _authService.loginWithEmailPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
 
-      // Input from user
-      final inputEmail = _emailController.text.trim();
-      final inputPassword = _passwordController.text;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login berhasil!'),
+            backgroundColor: Colors.green,
+          ),
+        );
 
-      // Validate if user is registered
-      if (storedEmail == null || storedPassword == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Akun tidak ditemukan. Silakan daftar terlebih dahulu.',
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-        return;
-      }
-
-      // Validate email and password
-      if (inputEmail == storedEmail && inputPassword == storedPassword) {
-        // Login success - set login status
-        await LocalStorageService.setLoginStatus(true);
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Login berhasil!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-
-          // Navigate to home page
-          Get.offAllNamed(AppRoutes.home);
-        }
-      } else {
-        // Login failed
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Email atau password salah'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        // Navigate to home page
+        Get.offAllNamed(AppRoutes.home);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
         );
       }
     } finally {

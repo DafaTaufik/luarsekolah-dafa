@@ -12,6 +12,10 @@ class TodoController extends GetxController {
   final isLoading = false.obs;
   final errorMessage = RxnString();
 
+  // Loading state for individual todo actions
+  final togglingTodos = <String>{}.obs;
+  final deletingTodos = <String>{}.obs;
+
   // Dependencies (usecase)
   final GetTodosUseCase _getTodos = Get.find();
   final CreateTodoUseCase _createTodo = Get.find();
@@ -58,22 +62,37 @@ class TodoController extends GetxController {
   }
 
   Future<void> deleteTodo(String id) async {
+    deletingTodos.add(id);
     try {
-      await _deleteTodo(id);
+      await Future.wait([
+        _deleteTodo(id),
+        Future.delayed(const Duration(milliseconds: 500)),
+      ]);
       todos.removeWhere((t) => t.id == id);
     } catch (e) {
       errorMessage.value = e.toString();
+    } finally {
+      deletingTodos.remove(id);
     }
   }
 
   Future<void> toggleTodoComplete(String id) async {
     final idx = todos.indexWhere((t) => t.id == id);
     if (idx == -1) return;
+
+    togglingTodos.add(id);
     try {
-      final toggled = await _toggleTodo(id);
+      // Jalankan toggle dan delay minimum secara paralel
+      final results = await Future.wait([
+        _toggleTodo(id),
+        Future.delayed(const Duration(milliseconds: 500)),
+      ]);
+      final toggled = results[0] as TodoEntity;
       todos[idx] = toggled;
     } catch (e) {
       errorMessage.value = e.toString();
+    } finally {
+      togglingTodos.remove(id);
     }
   }
 }

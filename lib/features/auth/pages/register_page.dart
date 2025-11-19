@@ -4,7 +4,7 @@ import 'package:form_field_validator/form_field_validator.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../../shared/widgets/input_field_register.dart';
 import '../../routes/app_routes.dart';
-import '../../../../core/services/local_storage_service.dart';
+import '../services/firebase_auth_service.dart';
 import 'package:get/get.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -20,6 +20,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authService = FirebaseAuthService();
   bool _isRobotChecked = false;
   bool _isLoading = false;
 
@@ -93,23 +94,26 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _isLoading = true);
 
     try {
-      final success = await LocalStorageService.saveUserData(
-        name: _nameController.text.trim(),
+      // Register with Firebase Auth
+      final userCredential = await _authService.registerWithEmailPassword(
         email: _emailController.text.trim(),
-        phone: _phoneController.text.trim(),
         password: _passwordController.text,
       );
 
-      if (success) {
+      // Save user data to Firestore
+      await _authService.saveUserData(
+        uid: userCredential.user!.uid,
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+      );
+
+      if (mounted) {
         _showSnackBar('Registrasi berhasil!', Colors.green);
-        if (mounted) {
-          Get.offAllNamed(AppRoutes.home);
-        }
-      } else {
-        _showSnackBar('Gagal menyimpan data. Silakan coba lagi.', Colors.red);
+        Get.offAllNamed(AppRoutes.home);
       }
     } catch (e) {
-      _showSnackBar('Error: $e', Colors.red);
+      _showSnackBar(e.toString(), Colors.red);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

@@ -42,12 +42,19 @@ class TodoListPage extends StatelessWidget {
             itemCount: controller.todos.length,
             itemBuilder: (context, index) {
               final todo = controller.todos[index];
-              return TodoCard(
-                todo: todo,
-                onEdit: (todo) => _editTodo(controller, todo),
-                onDelete: (todo) => _showDeleteDialog(controller, todo),
-                onToggle: () => controller.toggleTodoComplete(todo.id),
-              );
+              return Obx(() {
+                final isToggling = controller.togglingTodos.contains(todo.id);
+                final isDeleting = controller.deletingTodos.contains(todo.id);
+
+                return TodoCard(
+                  todo: todo,
+                  onEdit: (todo) => _editTodo(controller, todo),
+                  onDelete: (todo) => _showDeleteDialog(controller, todo),
+                  onToggle: () => controller.toggleTodoComplete(todo.id),
+                  isToggling: isToggling,
+                  isDeleting: isDeleting,
+                );
+              });
             },
           );
         }

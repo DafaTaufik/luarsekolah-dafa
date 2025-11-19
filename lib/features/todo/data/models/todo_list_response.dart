@@ -5,13 +5,11 @@ class TodoListResponse {
   final List<TodoEntity> todos;
   final int total;
   final int limit;
-  final int offset;
 
   TodoListResponse({
     required this.todos,
     required this.total,
     required this.limit,
-    required this.offset,
   });
 
   factory TodoListResponse.fromJson(Map<String, dynamic> json) {
@@ -21,7 +19,6 @@ class TodoListResponse {
           .toList(),
       total: json['total'],
       limit: json['limit'],
-      offset: json['offset'],
     );
   }
 }

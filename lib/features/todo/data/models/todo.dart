@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
 
 class Todo extends TodoEntity {
@@ -21,6 +22,27 @@ class Todo extends TodoEntity {
 
   Map<String, dynamic> toJson() {
     return {'text': text, 'completed': completed};
+  }
+
+  // Firestore methods
+  factory Todo.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return Todo(
+      id: doc.id,
+      text: data['text'] as String,
+      completed: data['completed'] as bool,
+      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'text': text,
+      'completed': completed,
+      'createdAt': Timestamp.fromDate(createdAt),
+      'updatedAt': Timestamp.fromDate(updatedAt),
+    };
   }
 
   // Helper to convert TodoEntity to Todo (for repository usage)
