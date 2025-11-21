@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
 import 'package:luarsekolah/features/todo/presentation/pages/add_todo_page.dart';
@@ -8,6 +10,7 @@ import 'package:luarsekolah/features/todo/presentation/widgets/todo_loading_stat
 import 'package:luarsekolah/features/todo/presentation/widgets/todo_error_state.dart';
 import 'package:luarsekolah/features/todo/presentation/controllers/todo_controller.dart';
 import 'package:luarsekolah/core/services/local_notification_service.dart';
+import 'package:luarsekolah/core/services/fcm_service.dart';
 
 class TodoListPage extends StatefulWidget {
   const TodoListPage({super.key});
@@ -48,39 +51,51 @@ class _TodoListPageState extends State<TodoListPage> {
         elevation: 0,
         centerTitle: true,
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const TodoLoadingState();
-        } else if (controller.errorMessage.value != null) {
-          return TodoErrorState(
-            message: controller.errorMessage.value,
-            onRetry: controller.loadTodos,
-          );
-        } else if (controller.todos.isEmpty) {
-          return _buildEmptyState();
-        } else {
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: controller.todos.length,
-            itemBuilder: (context, index) {
-              final todo = controller.todos[index];
-              return Obx(() {
-                final isToggling = controller.togglingTodos.contains(todo.id);
-                final isDeleting = controller.deletingTodos.contains(todo.id);
-
-                return TodoCard(
-                  todo: todo,
-                  onEdit: (todo) => _editTodo(controller, todo),
-                  onDelete: (todo) => _showDeleteDialog(controller, todo),
-                  onToggle: () => controller.toggleTodoComplete(todo.id),
-                  isToggling: isToggling,
-                  isDeleting: isDeleting,
+      body: Column(
+        children: [
+          // Display, only on debug
+          if (kDebugMode) _buildFcmTokenWidget(),
+          Expanded(
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const TodoLoadingState();
+              } else if (controller.errorMessage.value != null) {
+                return TodoErrorState(
+                  message: controller.errorMessage.value,
+                  onRetry: controller.loadTodos,
                 );
-              });
-            },
-          );
-        }
-      }),
+              } else if (controller.todos.isEmpty) {
+                return _buildEmptyState();
+              } else {
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: controller.todos.length,
+                  itemBuilder: (context, index) {
+                    final todo = controller.todos[index];
+                    return Obx(() {
+                      final isToggling = controller.togglingTodos.contains(
+                        todo.id,
+                      );
+                      final isDeleting = controller.deletingTodos.contains(
+                        todo.id,
+                      );
+
+                      return TodoCard(
+                        todo: todo,
+                        onEdit: (todo) => _editTodo(controller, todo),
+                        onDelete: (todo) => _showDeleteDialog(controller, todo),
+                        onToggle: () => controller.toggleTodoComplete(todo.id),
+                        isToggling: isToggling,
+                        isDeleting: isDeleting,
+                      );
+                    });
+                  },
+                );
+              }
+            }),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Get.to<TodoEntity>(() => const AddTodoPage());
@@ -90,6 +105,56 @@ class _TodoListPageState extends State<TodoListPage> {
         },
         backgroundColor: AppColors.greenDecorative,
         child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildFcmTokenWidget() {
+    final fcmToken = FcmService.instance.token;
+
+    if (fcmToken == null) {
+      return const SizedBox.shrink();
+    }
+
+    final truncatedToken = fcmToken.length > 20
+        ? '${fcmToken.substring(0, 20)}...'
+        : fcmToken;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      color: Colors.blue[50],
+      child: Row(
+        children: [
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'FCM: $truncatedToken',
+              style: const TextStyle(fontSize: 12, color: Colors.black87),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          TextButton.icon(
+            onPressed: () => _copyFcmToken(fcmToken),
+            icon: const Icon(Icons.copy, size: 16),
+            label: const Text('Copy', style: TextStyle(fontSize: 12)),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _copyFcmToken(String token) {
+    Clipboard.setData(ClipboardData(text: token));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ FCM Token copied to clipboard!'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,
       ),
     );
   }
