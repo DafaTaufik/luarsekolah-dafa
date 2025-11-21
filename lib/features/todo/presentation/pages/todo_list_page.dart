@@ -7,9 +7,31 @@ import 'package:luarsekolah/features/todo/presentation/widgets/todo_card.dart';
 import 'package:luarsekolah/features/todo/presentation/widgets/todo_loading_state.dart';
 import 'package:luarsekolah/features/todo/presentation/widgets/todo_error_state.dart';
 import 'package:luarsekolah/features/todo/presentation/controllers/todo_controller.dart';
+import 'package:luarsekolah/core/services/local_notification_service.dart';
 
-class TodoListPage extends StatelessWidget {
+class TodoListPage extends StatefulWidget {
   const TodoListPage({super.key});
+
+  @override
+  State<TodoListPage> createState() => _TodoListPageState();
+}
+
+class _TodoListPageState extends State<TodoListPage> {
+  @override
+  void initState() {
+    super.initState();
+    _checkNotificationPermission();
+  }
+
+  Future<void> _checkNotificationPermission() async {
+    final notificationService = LocalNotificationService.instance;
+    await notificationService.initialize();
+
+    final hasPermission = await notificationService.checkPermission();
+    if (!hasPermission && mounted) {
+      await notificationService.requestPermission();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
