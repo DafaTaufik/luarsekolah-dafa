@@ -5,6 +5,7 @@ import 'package:luarsekolah/features/todo/domain/usecases/create_todo_usecase.da
 import 'package:luarsekolah/features/todo/domain/usecases/update_todo_usecase.dart';
 import 'package:luarsekolah/features/todo/domain/usecases/delete_todo_usecase.dart';
 import 'package:luarsekolah/features/todo/domain/usecases/toggle_todo_completion_usecase.dart';
+import 'package:luarsekolah/features/todo/domain/usecases/send_todo_notification_usecase.dart';
 
 class TodoController extends GetxController {
   // State
@@ -22,6 +23,7 @@ class TodoController extends GetxController {
   final UpdateTodoUseCase _updateTodo = Get.find();
   final DeleteTodoUseCase _deleteTodo = Get.find();
   final ToggleTodoCompletionUseCase _toggleTodo = Get.find();
+  final SendTodoNotificationUseCase _sendNotification = Get.find();
 
   @override
   void onInit() {
@@ -46,6 +48,13 @@ class TodoController extends GetxController {
     try {
       final createdTodo = await _createTodo(todo);
       todos.add(createdTodo);
+
+      // Send notif
+      await _sendNotification(
+        type: TodoNotificationType.created,
+        todoText: createdTodo.text,
+        todoId: createdTodo.id,
+      );
     } catch (e) {
       errorMessage.value = e.toString();
     }
@@ -63,12 +72,24 @@ class TodoController extends GetxController {
 
   Future<void> deleteTodo(String id) async {
     deletingTodos.add(id);
+
+    // Get todo text before delete
+    final todoToDelete = todos.firstWhere((t) => t.id == id);
+    final todoText = todoToDelete.text;
+
     try {
       await Future.wait([
         _deleteTodo(id),
         Future.delayed(const Duration(milliseconds: 500)),
       ]);
       todos.removeWhere((t) => t.id == id);
+
+      // Send notif
+      await _sendNotification(
+        type: TodoNotificationType.deleted,
+        todoText: todoText,
+        todoId: id,
+      );
     } catch (e) {
       errorMessage.value = e.toString();
     } finally {
@@ -82,13 +103,19 @@ class TodoController extends GetxController {
 
     togglingTodos.add(id);
     try {
-      // Jalankan toggle dan delay minimum secara paralel
       final results = await Future.wait([
         _toggleTodo(id),
         Future.delayed(const Duration(milliseconds: 500)),
       ]);
       final toggled = results[0] as TodoEntity;
       todos[idx] = toggled;
+
+      // Send notif
+      await _sendNotification(
+        type: TodoNotificationType.toggled,
+        todoText: toggled.text,
+        todoId: toggled.id,
+      );
     } catch (e) {
       errorMessage.value = e.toString();
     } finally {
