@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:luarsekolah/core/services/local_notification_service.dart';
 
 /// Service for (FCM)
@@ -70,10 +71,18 @@ class FcmService {
         // Timestamp as ID
         final notificationId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
-        LocalNotificationService.instance.showFcmNotification(
+        LocalNotificationService.instance.show(
           id: notificationId,
           title: title,
           body: body,
+          channelId: 'fcm_channel',
+          channelName: 'FCM Notifications',
+          channelDescription: 'Notifikasi dari Firebase Cloud Messaging',
+          importance: Importance.high,
+          priority: Priority.high,
+          enableVibration: true,
+          playSound: true,
+          presentSound: true,
         );
       }
     });

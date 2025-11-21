@@ -16,10 +16,13 @@ class SendTodoNotificationUseCase {
     final (title, body) = _getNotificationContent(type, todoText);
     final notificationId = _notificationService.generateNotificationId(todoId);
 
-    await _notificationService.showNotification(
+    await _notificationService.show(
       id: notificationId,
       title: title,
       body: body,
+      channelId: 'todo_channel',
+      channelName: 'Todo Notifications',
+      channelDescription: 'Notifikasi untuk perubahan todo',
     );
   }
 

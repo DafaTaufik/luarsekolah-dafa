@@ -1,7 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-/// Service for handling local notifications
 class LocalNotificationService {
   LocalNotificationService._();
   static final LocalNotificationService instance = LocalNotificationService._();
@@ -19,18 +18,7 @@ class LocalNotificationService {
       '@mipmap/ic_launcher',
     );
 
-    // iOS initialization settings
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
-    );
-
-    // Combined initialization settings
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
+    const initSettings = InitializationSettings(android: androidSettings);
 
     await _notificationsPlugin.initialize(
       initSettings,
@@ -42,22 +30,41 @@ class LocalNotificationService {
     _isInitialized = true;
   }
 
-  /// Create notification channel
-  Future<void> _createNotificationChannel() async {
-    const androidChannel = AndroidNotificationChannel(
-      'todo_channel',
-      'Todo Notifications',
-      description: 'Notifikasi untuk perubahan todo',
-      importance: Importance.defaultImportance,
-      enableVibration: false,
-      playSound: false,
-    );
-
-    await _notificationsPlugin
+  /// Create a notification channel
+  Future<void> createChannel(AndroidNotificationChannel channel) async {
+    final androidPlugin = _notificationsPlugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(androidChannel);
+        >();
+
+    await androidPlugin?.createNotificationChannel(channel);
+  }
+
+  /// Create default notification channels
+  Future<void> _createNotificationChannel() async {
+    // Default channels
+    const defaultChannels = [
+      AndroidNotificationChannel(
+        'todo_channel',
+        'Todo Notifications',
+        description: 'Notifikasi untuk perubahan todo',
+        importance: Importance.defaultImportance,
+        enableVibration: false,
+        playSound: false,
+      ),
+      AndroidNotificationChannel(
+        'fcm_channel',
+        'FCM Notifications',
+        description: 'Notifikasi dari Firebase Cloud Messaging',
+        importance: Importance.high,
+        enableVibration: true,
+        playSound: true,
+      ),
+    ];
+
+    for (final channel in defaultChannels) {
+      await createChannel(channel);
+    }
   }
 
   void _onNotificationTapped(NotificationResponse response) {}
@@ -78,87 +85,61 @@ class LocalNotificationService {
     return uniqueKey.hashCode.abs();
   }
 
-  /// Show a local notification
-  Future<void> showNotification({
+  /// Base method to show notification
+  Future<void> _showNotificationWithDetails({
     required int id,
     required String title,
     required String body,
+    required NotificationDetails details,
   }) async {
     if (!_isInitialized) {
       await initialize();
     }
 
-    // Check permission
     final hasPermission = await checkPermission();
-    if (!hasPermission) {
-      return;
-    }
+    if (!hasPermission) return;
 
-    // Notification details
-    const androidDetails = AndroidNotificationDetails(
-      'todo_channel', // Channel ID
-      'Todo Notifications', // Channel name
-      channelDescription: 'Notifikasi untuk perubahan todo',
-      importance: Importance.defaultImportance,
-      priority: Priority.defaultPriority,
-      enableVibration: false,
-      playSound: false,
-    );
-
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: false,
-    );
-
-    const notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-
-    // Show notification with specific ID
-    await _notificationsPlugin.show(id, title, body, notificationDetails);
+    await _notificationsPlugin.show(id, title, body, details);
   }
 
-  /// Show FCM notification
-  Future<void> showFcmNotification({
+  /// Show notification with custom channel and settings
+  Future<void> show({
     required int id,
     required String title,
     required String body,
+    required String channelId,
+    required String channelName,
+    String? channelDescription,
+    Importance importance = Importance.defaultImportance,
+    Priority priority = Priority.defaultPriority,
+    bool enableVibration = false,
+    bool playSound = false,
+    bool presentAlert = true,
+    bool presentBadge = true,
+    bool presentSound = false,
   }) async {
-    if (!_isInitialized) {
-      await initialize();
-    }
-
-    // Permission check
-    final hasPermission = await checkPermission();
-    if (!hasPermission) {
-      return;
-    }
-
-    // Notification details
-    const androidDetails = AndroidNotificationDetails(
-      'fcm_channel',
-      'FCM Notifications',
-      channelDescription: 'Notifikasi dari Firebase Cloud Messaging',
-      importance: Importance.high,
-      priority: Priority.high,
-      enableVibration: true,
-      playSound: true,
+    final notificationDetails = NotificationDetails(
+      android: AndroidNotificationDetails(
+        channelId,
+        channelName,
+        channelDescription: channelDescription,
+        importance: importance,
+        priority: priority,
+        enableVibration: enableVibration,
+        playSound: playSound,
+      ),
+      iOS: DarwinNotificationDetails(
+        presentAlert: presentAlert,
+        presentBadge: presentBadge,
+        presentSound: presentSound,
+      ),
     );
 
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
+    await _showNotificationWithDetails(
+      id: id,
+      title: title,
+      body: body,
+      details: notificationDetails,
     );
-
-    const notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-
-    // Show notification
-    await _notificationsPlugin.show(id, title, body, notificationDetails);
   }
 }

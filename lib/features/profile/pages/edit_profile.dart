@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/services/local_storage_service.dart';
 import '../../../shared/widgets/custom_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/constants/storage_keys.dart';
@@ -36,8 +35,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final prefs = await SharedPreferences.getInstance();
 
       // Load name from shared preferences
-      final name = await LocalStorageService.getUserName();
-      _namaController.text = name ?? '';
 
       // Load other data if exists
       final birthDate = prefs.getString(StorageKeys.userBirthDate);
@@ -86,53 +83,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       setState(() {
         _selectedDate = picked;
       });
-    }
-  }
-
-  Future<void> _saveChanges() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-
-      try {
-        final success = await LocalStorageService.updateUserProfile(
-          name: _namaController.text.trim(),
-          birthDate: _selectedDate?.toIso8601String(),
-          address: _alamatController.text.trim(),
-          gender: _jenisKelamin,
-          jobStatus: _statusPekerjaan,
-        );
-
-        if (success) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Perubahan berhasil disimpan'),
-                backgroundColor: Color(0xFF077E60),
-              ),
-            );
-            Get.back();
-          }
-        } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Gagal menyimpan perubahan'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
-      }
     }
   }
 
@@ -427,7 +377,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     // Sasve Button
                     CustomButton(
                       text: 'Simpan Perubahan',
-                      onPressed: _isLoading ? null : _saveChanges,
                       backgroundColor: const Color(0xFF077E60),
                       textColor: Colors.white,
                       height: 48,
