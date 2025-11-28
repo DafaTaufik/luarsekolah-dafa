@@ -20,10 +20,30 @@ class TodoListPage extends StatefulWidget {
 }
 
 class _TodoListPageState extends State<TodoListPage> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     _checkNotificationPermission();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // Detect when user scrolls to 80% of list
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      final controller = Get.find<TodoController>();
+      if (!controller.isLoadingMore.value && controller.hasMore.value) {
+        controller.loadMoreTodos();
+      }
+    }
   }
 
   Future<void> _checkNotificationPermission() async {
@@ -68,9 +88,26 @@ class _TodoListPageState extends State<TodoListPage> {
                 return _buildEmptyState();
               } else {
                 return ListView.builder(
+                  controller: _scrollController,
                   padding: const EdgeInsets.all(16),
-                  itemCount: controller.todos.length,
+                  itemCount:
+                      controller.todos.length +
+                      1, // +1 for loading/retry indicator
                   itemBuilder: (context, index) {
+                    // Show loading/retry indicator at the bottom
+                    if (index == controller.todos.length) {
+                      return Obx(() {
+                        if (controller.isLoadingMore.value) {
+                          return _buildLoadMoreIndicator();
+                        } else if (controller.loadMoreError.value != null) {
+                          return _buildRetryButton(controller);
+                        } else if (!controller.hasMore.value) {
+                          return const SizedBox.shrink(); // No more data
+                        }
+                        return const SizedBox.shrink();
+                      });
+                    }
+
                     final todo = controller.todos[index];
                     return Obx(() {
                       final isToggling = controller.togglingTodos.contains(
@@ -155,6 +192,52 @@ class _TodoListPageState extends State<TodoListPage> {
         content: Text('✅ FCM Token copied to clipboard!'),
         duration: Duration(seconds: 2),
         backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: 12),
+          Text(
+            'Loading more todos...',
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRetryButton(TodoController controller) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline, size: 40, color: Colors.red[300]),
+          const SizedBox(height: 12),
+          Text(
+            'Failed to load more todos',
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton.icon(
+            onPressed: () => controller.loadMoreTodos(),
+            icon: const Icon(Icons.refresh),
+            label: const Text('Retry'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.greenDecorative,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
       ),
     );
   }
