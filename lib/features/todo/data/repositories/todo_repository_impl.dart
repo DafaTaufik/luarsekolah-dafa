@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
 import 'package:luarsekolah/features/todo/domain/repositories/todo_repository.dart';
@@ -12,11 +13,13 @@ class TodoRepositoryImpl implements TodoRepository {
 
   /// GET /todos
   /// Query params: limit, offset, completed
+  /// lastDocument is not used for REST API (uses offset)
   @override
   Future<TodoListResponse> getTodos({
     int limit = 10,
     int offset = 0,
     bool? completed,
+    DocumentSnapshot? lastDocument,
   }) async {
     try {
       final queryParams = <String, dynamic>{'limit': limit, 'offset': offset};

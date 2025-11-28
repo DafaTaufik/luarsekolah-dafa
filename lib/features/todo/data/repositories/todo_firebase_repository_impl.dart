@@ -18,9 +18,12 @@ class TodoFirebaseRepositoryImpl implements TodoRepository {
     return _firestore.collection('users').doc(userId).collection('todos');
   }
 
-  /// Get todos from Firestore
   @override
-  Future<TodoListResponse> getTodos({int limit = 10, bool? completed}) async {
+  Future<TodoListResponse> getTodos({
+    int limit = 10,
+    bool? completed,
+    DocumentSnapshot? lastDocument,
+  }) async {
     try {
       Query query = _todosCollection.orderBy('createdAt', descending: true);
 
@@ -29,14 +32,34 @@ class TodoFirebaseRepositoryImpl implements TodoRepository {
         query = query.where('completed', isEqualTo: completed);
       }
 
-      query = query.limit(limit);
+      // Add pagination cursor if provided
+      if (lastDocument != null) {
+        query = query.startAfterDocument(lastDocument);
+      }
+
+      // Fetch limit + 1 to determine if more data exists
+      query = query.limit(limit + 1);
 
       final snapshot = await query.get();
-      final todos = snapshot.docs
-          .map((doc) => Todo.fromFirestore(doc))
-          .toList();
+      final docs = snapshot.docs;
 
-      return TodoListResponse(todos: todos, total: todos.length, limit: limit);
+      // Check if there are more items
+      final hasMore = docs.length > limit;
+
+      // Take only the requested limit
+      final todoDocs = hasMore ? docs.sublist(0, limit) : docs;
+      final todos = todoDocs.map((doc) => Todo.fromFirestore(doc)).toList();
+
+      // Get the last document for next pagination
+      final newLastDocument = todoDocs.isNotEmpty ? todoDocs.last : null;
+
+      return TodoListResponse(
+        todos: todos,
+        total: todos.length,
+        limit: limit,
+        lastDocument: newLastDocument,
+        hasMore: hasMore,
+      );
     } catch (e) {
       throw _handleError(e);
     }
@@ -147,5 +170,83 @@ class TodoFirebaseRepositoryImpl implements TodoRepository {
       }
     }
     return error.toString();
+  }
+
+  /// DEBUG ONLY: Populate 70 test todos for lazy loading testing
+  Future<void> populateTestTodos() async {
+    try {
+      final batch = _firestore.batch();
+
+      final baseDate = DateTime(2025, 11, 27, 7, 0, 0);
+      const timeRangeMinutes = 600;
+
+      final todoTemplates = [
+        'Complete project documentation',
+        'Review code changes',
+        'Update database schema',
+        'Fix bug in authentication',
+        'Implement lazy loading feature',
+        'Write unit tests',
+        'Optimize query performance',
+        'Add error handling',
+        'Refactor legacy code',
+        'Update dependencies',
+        'Design new UI component',
+        'Create API endpoint',
+        'Configure CI/CD pipeline',
+        'Research new technology',
+        'Conduct code review',
+        'Deploy to staging',
+        'Update user documentation',
+        'Fix responsive layout',
+        'Add loading indicators',
+        'Implement caching strategy',
+        'Setup monitoring alerts',
+        'Improve accessibility',
+        'Add validation rules',
+        'Create backup strategy',
+        'Optimize images',
+        'Update security policies',
+        'Integrate third-party API',
+        'Add analytics tracking',
+        'Create error logs',
+        'Setup development environment',
+        'Write technical specification',
+        'Prepare release notes',
+        'Test edge cases',
+        'Add feature flags',
+        'Update README file',
+      ];
+
+      for (int i = 0; i < 70; i++) {
+        final docRef = _todosCollection.doc();
+
+        // Random timestamp within range
+        final randomMinutes =
+            (i * 137) % timeRangeMinutes; // Pseudo-random distribution
+        final timestamp = baseDate.add(Duration(minutes: randomMinutes));
+
+        // Select todo text
+        String todoText;
+        if (i < todoTemplates.length) {
+          todoText = todoTemplates[i];
+        } else {
+          final templateIndex = i % todoTemplates.length;
+          todoText =
+              '${todoTemplates[templateIndex]} #${(i ~/ todoTemplates.length) + 1}';
+        }
+
+        batch.set(docRef, {
+          'text': todoText,
+          'completed': false,
+          'createdAt': Timestamp.fromDate(timestamp),
+          'updatedAt': Timestamp.fromDate(timestamp),
+        });
+      }
+
+      await batch.commit();
+    } catch (e) {
+      throw _handleError(e);
+    }
   }
 }
