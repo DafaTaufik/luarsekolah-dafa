@@ -6,6 +6,8 @@ import '../../../shared/widgets/custom_button.dart';
 import '../../routes/app_routes.dart';
 import '../services/firebase_auth_service.dart';
 import 'package:get/get.dart';
+import 'package:luarsekolah/core/services/local_notification_service.dart';
+import 'package:luarsekolah/core/services/fcm_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -34,10 +36,26 @@ class _LoginPageState extends State<LoginPage> {
   ]);
 
   @override
+  void initState() {
+    super.initState();
+    _checkNotificationPermission();
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkNotificationPermission() async {
+    final notificationService = LocalNotificationService.instance;
+    await notificationService.initialize();
+
+    final hasPermission = await notificationService.checkPermission();
+    if (!hasPermission && mounted) {
+      await notificationService.requestPermission();
+    }
   }
 
   Future<void> _handleLogin() async {
@@ -74,6 +92,9 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: Colors.green,
           ),
         );
+
+        // Initialize FCM, get token
+        await FcmService.instance.initialize();
 
         // Navigate to home page
         Get.offAllNamed(AppRoutes.home);
