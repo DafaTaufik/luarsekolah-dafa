@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:luarsekolah/features/todo/domain/entities/todo_entity.dart';
 import 'package:luarsekolah/features/todo/domain/usecases/get_todos_usecase.dart';
@@ -12,6 +13,12 @@ class TodoController extends GetxController {
   final todos = <TodoEntity>[].obs;
   final isLoading = false.obs;
   final errorMessage = RxnString();
+
+  // Pagination state
+  final isLoadingMore = false.obs;
+  final hasMore = true.obs;
+  DocumentSnapshot? _lastDocument;
+  final loadMoreError = RxnString();
 
   // Loading state for individual todo actions
   final togglingTodos = <String>{}.obs;
@@ -34,13 +41,51 @@ class TodoController extends GetxController {
   Future<void> loadTodos() async {
     isLoading.value = true;
     errorMessage.value = null;
+    loadMoreError.value = null;
+
+    // Reset pagination state
+    _lastDocument = null;
+    hasMore.value = true;
+
     try {
-      final listResponse = await _getTodos.call(limit: 50);
+      final listResponse = await _getTodos.call(limit: 10);
       todos.assignAll(listResponse.todos);
+
+      // Update pagination state
+      _lastDocument = listResponse.lastDocument;
+      hasMore.value = listResponse.hasMore;
     } catch (e) {
       errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> loadMoreTodos() async {
+    // Don't load if already loading or no more data
+    if (isLoadingMore.value || !hasMore.value) return;
+
+    isLoadingMore.value = true;
+    loadMoreError.value = null;
+
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+
+      final listResponse = await _getTodos.call(
+        limit: 10,
+        lastDocument: _lastDocument,
+      );
+
+      // Append new todos
+      todos.addAll(listResponse.todos);
+
+      // Update pagination state
+      _lastDocument = listResponse.lastDocument;
+      hasMore.value = listResponse.hasMore;
+    } catch (e) {
+      loadMoreError.value = e.toString();
+    } finally {
+      isLoadingMore.value = false;
     }
   }
 

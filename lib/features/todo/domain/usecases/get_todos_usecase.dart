@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:luarsekolah/features/todo/domain/repositories/todo_repository.dart';
 import 'package:luarsekolah/features/todo/data/models/todo_list_response.dart';
 
@@ -9,7 +10,12 @@ class GetTodosUseCase {
     int limit = 10,
     int offset = 0,
     bool? completed,
+    DocumentSnapshot? lastDocument,
   }) {
-    return repository.getTodos(limit: limit, completed: completed);
+    return repository.getTodos(
+      limit: limit,
+      completed: completed,
+      lastDocument: lastDocument,
+    );
   }
 }

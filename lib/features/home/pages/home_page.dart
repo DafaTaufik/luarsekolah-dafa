@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../shared/widgets/custom_media_card.dart';
 import '../../../shared/widgets/home_class_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../widgets/user_header.dart';
+import '../../todo/data/repositories/todo_firebase_repository_impl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -52,6 +54,47 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      // DEBUG ONLY: Button to populate test todos
+      floatingActionButton: kDebugMode
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                try {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Populating 70 todos...'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+
+                  final repository = TodoFirebaseRepositoryImpl();
+                  await repository.populateTestTodos();
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('✅ Successfully populated 70 todos!'),
+                        backgroundColor: Colors.green,
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('❌ Error: $e'),
+                        backgroundColor: Colors.red,
+                        duration: const Duration(seconds: 4),
+                      ),
+                    );
+                  }
+                }
+              },
+              icon: const Icon(Icons.data_usage),
+              label: const Text('Populate'),
+              backgroundColor: Colors.orange,
+            )
+          : null,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
