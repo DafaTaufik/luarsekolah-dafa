@@ -1,11 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../shared/widgets/custom_media_card.dart';
-import '../../../shared/widgets/home_class_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import '../widgets/user_header.dart';
-import '../../todo/data/repositories/todo_firebase_repository_impl.dart';
+import 'package:luarsekolah/features/home/widgets/user_header.dart';
+import 'package:luarsekolah/features/todo/data/repositories/todo_firebase_repository_impl.dart';
+import 'package:luarsekolah/features/home/widgets/custom_media_card.dart';
+import 'package:luarsekolah/features/home/widgets/home_class_card.dart';
+import 'package:luarsekolah/features/home/widgets/menu_item_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -19,7 +20,7 @@ class _HomePageState extends State<HomePage> {
   final CarouselSliderController _carouselController =
       CarouselSliderController();
 
-  // List image banner from assets
+  // List image carousel banner still dummy from assets
   final List<String> bannerImages = [
     'assets/images/banner_1.png',
     'assets/images/banner_2.png',
@@ -95,12 +96,14 @@ class _HomePageState extends State<HomePage> {
               backgroundColor: Colors.orange,
             )
           : null,
+
+      // BODY
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Section with Firebase Stream
+              // Header Section with Firebase Stream (UserName Data)
               const UserHeader(),
 
               Transform.translate(
@@ -119,7 +122,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       SizedBox(height: 20),
 
-                      // Carousel Slider
+                      // CAROUSEL SLIDER
                       CarouselSlider(
                         carouselController: _carouselController,
                         options: CarouselOptions(
@@ -199,6 +202,7 @@ class _HomePageState extends State<HomePage> {
                       _buildDotIndicator(),
                       SizedBox(height: 24),
 
+                      // PROGRAM FROM LUARSEKOLAH
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 20),
                         child: Column(
@@ -213,6 +217,83 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             SizedBox(height: 24),
+
+                            // HORIZONTAL MENU SECTION (AFTER PROGRAM DARI LUARSEKOLAH)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  MenuItemCard(
+                                    iconPath: 'assets/icons/ic_prakerja.png',
+                                    label: 'Prakerja',
+                                    onTap: () {
+                                      // TODO: Navigate to Prakerja page
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Prakerja - Coming Soon',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  MenuItemCard(
+                                    iconPath: 'assets/icons/ic_magang.png',
+                                    label: 'magang+',
+                                    onTap: () {
+                                      // TODO: Navigate to Magang page
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'magang+ - Coming Soon',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  MenuItemCard(
+                                    iconPath: 'assets/icons/ic_luarskl.png',
+                                    label: 'Subs',
+                                    onTap: () {
+                                      // TODO: Navigate to Subscription page
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Subs - Coming Soon'),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  MenuItemCard(
+                                    iconPath: '',
+                                    label: 'Lainnya',
+                                    onTap: () {
+                                      // TODO: Navigate to More/Others page
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Lainnya - Coming Soon',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 24),
 
                             // Prakerja Voucher Card
                             Container(

@@ -76,10 +76,13 @@ flutter:
   assets:
     - assets/logo.png
     - assets/icons/ic_google.png
+    - assets/icons/ic_prakerja.png
+    - assets/icons/ic_magang.png
+    - assets/icons/ic_luarskl.png
+    - assets/icons/ic_redeem.png
     - assets/images/banner_1.png
     - assets/images/banner_2.png
     - assets/images/banner_3.png
-    - assets/icons/ic_redeem.png
     - assets/images/media_1.png
     - assets/images/media_2.png
     - assets/images/class_1.png
