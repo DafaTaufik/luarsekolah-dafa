@@ -88,7 +88,7 @@ class _AddClassPageState extends State<AddClassPage> {
     if (success) {
       // Navigate back to class page after successful creation
       if (mounted) {
-        Get.back();
+        Navigator.pop(context, true); // Return true to indicate success
       }
     }
   }

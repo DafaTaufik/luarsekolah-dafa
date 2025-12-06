@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../shared/widgets/custom_button.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../../core/constants/storage_keys.dart';
+import '../../auth/services/firebase_auth_service.dart';
+import '../widgets/edit_profile_widgets/profile_text_field.dart';
+import '../widgets/edit_profile_widgets/profile_readonly_field.dart';
+import '../widgets/edit_profile_widgets/profile_date_picker_field.dart';
+import '../widgets/edit_profile_widgets/profile_dropdown_field.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -15,12 +18,17 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _alamatController = TextEditingController();
+
+  final FirebaseAuthService _authService = FirebaseAuthService();
 
   DateTime? _selectedDate;
   String? _jenisKelamin;
   String? _statusPekerjaan;
   bool _isLoading = true;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -32,63 +40,98 @@ class _EditProfilePageState extends State<EditProfilePage> {
     setState(() => _isLoading = true);
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-
-      // Load name from shared preferences
-
-      // Load other data if exists
-      final birthDate = prefs.getString(StorageKeys.userBirthDate);
-      if (birthDate != null && birthDate.isNotEmpty) {
-        _selectedDate = DateTime.tryParse(birthDate);
+      final user = _authService.currentUser;
+      if (user == null) {
+        Get.back();
+        return;
       }
 
-      final address = prefs.getString(StorageKeys.userAddress);
-      if (address != null && address.isNotEmpty) {
-        _alamatController.text = address;
-      }
+      // Load user data from Firestore
+      final userData = await _authService.getUserData(user.uid);
 
-      final gender = prefs.getString(StorageKeys.userGender);
-      if (gender != null && gender.isNotEmpty) {
-        _jenisKelamin = gender;
-      }
+      if (userData != null) {
+        // Set email and phone (read-only)
+        _emailController.text = userData['email'] ?? '';
+        _phoneController.text = userData['phone'] ?? '';
 
-      // Load job status
-      final jobStatus = prefs.getString(StorageKeys.userJobStatus);
-      if (jobStatus != null && jobStatus.isNotEmpty) {
-        _statusPekerjaan = jobStatus;
+        // Set editable fields
+        _namaController.text = userData['name'] ?? '';
+
+        if (userData['birthDate'] != null) {
+          final timestamp = userData['birthDate'] as Timestamp;
+          _selectedDate = timestamp.toDate();
+        }
+
+        _alamatController.text = userData['address'] ?? '';
+        _jenisKelamin = userData['gender'];
+        _statusPekerjaan = userData['jobStatus'];
       }
     } catch (e) {
-      print('Error loading user data: $e');
+      Get.snackbar(
+        'Error',
+        'Gagal memuat data: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: Color(0xFF077E60)),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
+  Future<void> _saveProfile() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      final user = _authService.currentUser;
+      if (user == null) {
+        throw Exception('User not logged in');
+      }
+
+      await _authService.updateUserData(
+        uid: user.uid,
+        name: _namaController.text.trim(),
+        birthDate: _selectedDate,
+        address: _alamatController.text.trim().isEmpty
+            ? null
+            : _alamatController.text.trim(),
+        gender: _jenisKelamin,
+        jobStatus: _statusPekerjaan,
+      );
+
+      Get.back();
+
+      Get.snackbar(
+        'Berhasil',
+        'Profile berhasil diperbarui',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Gagal menyimpan data: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+    } finally {
+      setState(() => _isSaving = false);
     }
   }
 
   @override
   void dispose() {
     _namaController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
     _alamatController.dispose();
     super.dispose();
   }
@@ -132,41 +175,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Nama Lengkap
-                    const Text(
-                      'Nama Lengkap',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    // Email (Read-only)
+                    ProfileReadOnlyField(
+                      label: 'Email',
+                      hintText: 'Email',
+                      controller: _emailController,
                     ),
-                    const SizedBox(height: 8),
-                    TextFormField(
+                    const SizedBox(height: 20),
+
+                    // Phone (Read-only)
+                    ProfileReadOnlyField(
+                      label: 'Nomor Telepon',
+                      hintText: 'Nomor Telepon',
+                      controller: _phoneController,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Nama Lengkap
+                    ProfileTextField(
+                      label: 'Nama Lengkap',
+                      hintText: 'Masukkan nama lengkap',
                       controller: _namaController,
-                      decoration: InputDecoration(
-                        hintText: 'Masukkan nama lengkap',
-                        hintStyle: TextStyle(color: Colors.grey[400]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF077E60),
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Nama lengkap tidak boleh kosong';
@@ -177,206 +206,65 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     const SizedBox(height: 20),
 
                     // Tanggal Lahir
-                    const Text(
-                      'Tanggal Lahir',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    InkWell(
-                      onTap: () => _selectDate(context),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]!),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.calendar_today,
-                              size: 20,
-                              color: Colors.grey[600],
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              _selectedDate != null
-                                  ? DateFormat(
-                                      'd MMMM yyyy',
-                                      'id_ID',
-                                    ).format(_selectedDate!)
-                                  : 'Pilih tanggal lahir',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: _selectedDate != null
-                                    ? Colors.black
-                                    : Colors.grey[400],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    ProfileDatePickerField(
+                      label: 'Tanggal Lahir',
+                      selectedDate: _selectedDate,
+                      onDateSelected: (date) {
+                        setState(() {
+                          _selectedDate = date;
+                        });
+                      },
                     ),
                     const SizedBox(height: 20),
 
                     // Jenis Kelamin
-                    const Text(
-                      'Jenis Kelamin',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
+                    ProfileDropdownField(
+                      label: 'Jenis Kelamin',
+                      hintText: 'Pilih jenis kelamin',
                       value: _jenisKelamin,
-                      hint: Text(
-                        'Pilih jenis kelamin',
-                        style: TextStyle(color: Colors.grey[400]),
-                      ),
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF077E60),
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
-                      items: ['Laki-Laki', 'Perempuan'].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
+                      items: const ['Laki-Laki', 'Perempuan'],
+                      onChanged: (value) {
                         setState(() {
-                          _jenisKelamin = newValue;
+                          _jenisKelamin = value;
                         });
                       },
                     ),
                     const SizedBox(height: 20),
 
                     // Status Pekerjaan
-                    const Text(
-                      'Status Pekerjaan',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
+                    ProfileDropdownField(
+                      label: 'Status Pekerjaan',
+                      hintText: 'Pilih status pekerjaan',
                       value: _statusPekerjaan,
-                      hint: Text(
-                        'Pilih status pekerjaan',
-                        style: TextStyle(color: Colors.grey[400]),
-                      ),
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF077E60),
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
-                      items:
-                          [
-                            'Presiden',
-                            'Karyawan',
-                            'Wiraswasta',
-                            'Pelajar',
-                            'Mahasiswa',
-                            'Lainnya',
-                          ].map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                      onChanged: (String? newValue) {
+                      items: const [
+                        'Presiden',
+                        'Karyawan',
+                        'Wiraswasta',
+                        'Pelajar',
+                        'Mahasiswa',
+                        'Lainnya',
+                      ],
+                      onChanged: (value) {
                         setState(() {
-                          _statusPekerjaan = newValue;
+                          _statusPekerjaan = value;
                         });
                       },
                     ),
                     const SizedBox(height: 20),
 
                     // Alamat Lengkap
-                    const Text(
-                      'Alamat Lengkap',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextFormField(
+                    ProfileTextField(
+                      label: 'Alamat Lengkap',
+                      hintText: 'Masukkan alamat lengkap',
                       controller: _alamatController,
                       maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: 'Masukkan alamat lengkap',
-                        hintStyle: TextStyle(color: Colors.grey[400]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF077E60),
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 32),
 
-                    // Sasve Button
+                    // Save Button
                     CustomButton(
-                      text: 'Simpan Perubahan',
+                      text: _isSaving ? 'Menyimpan...' : 'Simpan Perubahan',
+                      onPressed: _isSaving ? null : _saveProfile,
                       backgroundColor: const Color(0xFF077E60),
                       textColor: Colors.white,
                       height: 48,
