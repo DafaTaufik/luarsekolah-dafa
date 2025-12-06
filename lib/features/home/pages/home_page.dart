@@ -345,13 +345,43 @@ class _HomePageState extends State<HomePage> {
                             ),
                             SizedBox(height: 16),
 
-                            HomeClassCard(
-                              imageUrl: 'assets/images/media_1.png',
-                              title: 'Teknik Pemilahan dan Pengolahan Sampah',
-                              rating: 4.5,
-                              price: 'Rp 1.500.000',
-                              tags: ['Prakerja', 'SPL'],
-                              onTap: () {},
+                            // HORIZONTAL HOMECLASSCARD SECTION
+                            SizedBox(
+                              height: 300,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                children: [
+                                  HomeClassCard(
+                                    imageUrl: 'assets/images/class_3.png',
+                                    title:
+                                        'Teknik Pemilahan dan Pengolahan Sampah',
+                                    rating: 4.5,
+                                    price: 'Rp 1.500.000',
+                                    tags: ['Prakerja', 'SPL'],
+                                    onTap: () {},
+                                  ),
+                                  SizedBox(width: 16),
+                                  HomeClassCard(
+                                    imageUrl: 'assets/images/class_3.png',
+                                    title:
+                                        'Teknik Pemilahan dan Pengolahan Sampah',
+                                    rating: 4.5,
+                                    price: 'Rp 1.500.000',
+                                    tags: ['Prakerja', 'SPL'],
+                                    onTap: () {},
+                                  ),
+                                  SizedBox(width: 16),
+                                  HomeClassCard(
+                                    imageUrl: 'assets/images/class_3.png',
+                                    title:
+                                        'Teknik Pemilahan dan Pengolahan Sampah',
+                                    rating: 4.5,
+                                    price: 'Rp 1.500.000',
+                                    tags: ['Prakerja', 'SPL'],
+                                    onTap: () {},
+                                  ),
+                                ],
+                              ),
                             ),
 
                             SizedBox(height: 16),
@@ -381,12 +411,37 @@ class _HomePageState extends State<HomePage> {
 
                             SizedBox(height: 16),
 
-                            CustomMediaCard(
-                              imageUrl: 'assets/images/media_2.png',
-                              categoryLabel: '5 Kelas Pembelajaran',
-                              title:
-                                  'Belajar SwiftUI Untuk Pembuatan Interface',
-                              onTap: () {},
+                            // HORIZONTAL CUSTOMMEDIACARD SECTION
+                            SizedBox(
+                              height: 280,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                children: [
+                                  CustomMediaCard(
+                                    imageUrl: 'assets/images/media_2.png',
+                                    categoryLabel: '5 Kelas Pembelajaran',
+                                    title:
+                                        'Belajar SwiftUI Untuk Pembuatan Interface',
+                                    onTap: () {},
+                                  ),
+                                  SizedBox(width: 16),
+                                  CustomMediaCard(
+                                    imageUrl: 'assets/images/media_3.png',
+                                    categoryLabel: '8 Kelas Pembelajaran',
+                                    title:
+                                        'Belajar Dart dari level pemula hingga expert',
+                                    onTap: () {},
+                                  ),
+                                  SizedBox(width: 16),
+                                  CustomMediaCard(
+                                    imageUrl: 'assets/images/media_2.png',
+                                    categoryLabel: '5 Kelas Pembelajaran',
+                                    title:
+                                        'Belajar SwiftUI Untuk Pembuatan Interface',
+                                    onTap: () {},
+                                  ),
+                                ],
+                              ),
                             ),
 
                             SizedBox(height: 16),
