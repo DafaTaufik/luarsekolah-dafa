@@ -84,7 +84,7 @@ class ArticleCard extends StatelessWidget {
                     title,
                     style: GoogleFonts.inter(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: Color(0xFF333333),
                       height: 1.4,
                     ),

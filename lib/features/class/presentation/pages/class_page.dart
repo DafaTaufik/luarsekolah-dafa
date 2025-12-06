@@ -6,6 +6,8 @@ import 'package:luarsekolah/features/class/presentation/widgets/error_view.dart'
 import 'package:luarsekolah/features/routes/app_routes.dart';
 import 'package:luarsekolah/shared/widgets/custom_button.dart';
 import 'package:luarsekolah/features/class/presentation/controllers/class_controller.dart';
+import 'package:luarsekolah/features/class/presentation/pages/add_class_page.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 class ClassPage extends StatefulWidget {
   const ClassPage({super.key});
@@ -113,8 +115,18 @@ class _ClassPageState extends State<ClassPage>
                           size: 20,
                           color: Colors.white,
                         ),
-                        onPressed: () {
-                          Get.toNamed(AppRoutes.addClass);
+                        onPressed: () async {
+                          // Use pushScreen with persistent bottom nav bar
+                          final result = await pushScreen(
+                            context,
+                            screen: const AddClassPage(),
+                            withNavBar: false, // Hide nav bar on add class page
+                          );
+
+                          // If success, trigger rebuild to show new item
+                          if (result == true && mounted) {
+                            setState(() {});
+                          }
                         },
                       ),
                     ),
