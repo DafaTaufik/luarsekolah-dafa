@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../shared/widgets/custom_button.dart';
 import '../../auth/services/firebase_auth_service.dart';
-import '../widgets/profile_text_field.dart';
-import '../widgets/profile_readonly_field.dart';
-import '../widgets/profile_date_picker_field.dart';
-import '../widgets/profile_dropdown_field.dart';
+import '../widgets/edit_profile_widgets/profile_text_field.dart';
+import '../widgets/edit_profile_widgets/profile_readonly_field.dart';
+import '../widgets/edit_profile_widgets/profile_date_picker_field.dart';
+import '../widgets/edit_profile_widgets/profile_dropdown_field.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});

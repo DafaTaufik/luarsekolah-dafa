@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../routes/app_routes.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../auth/services/firebase_auth_service.dart';
+import '../../../routes/app_routes.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../auth/services/firebase_auth_service.dart';
 
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({super.key});
