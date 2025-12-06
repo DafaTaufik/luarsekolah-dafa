@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:get/get.dart';
 import 'package:luarsekolah/core/constants/app_colors.dart';
 import 'package:luarsekolah/features/home/widgets/user_header.dart';
 import 'package:luarsekolah/features/home/widgets/custom_media_card.dart';
@@ -9,6 +10,7 @@ import 'package:luarsekolah/features/home/widgets/menu_item_card.dart';
 import 'package:luarsekolah/features/home/widgets/project_card.dart';
 import 'package:luarsekolah/features/home/widgets/article_card.dart';
 import 'package:luarsekolah/shared/widgets/custom_button.dart';
+import 'package:luarsekolah/features/class/presentation/controllers/class_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -346,43 +348,76 @@ class _HomePageState extends State<HomePage> {
                             SizedBox(height: 16),
 
                             // HORIZONTAL HOMECLASSCARD SECTION
-                            SizedBox(
-                              height: 300,
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                children: [
-                                  HomeClassCard(
-                                    imageUrl: 'assets/images/class_3.png',
-                                    title:
-                                        'Teknik Pemilahan dan Pengolahan Sampah',
-                                    rating: 4.5,
-                                    price: 'Rp 1.500.000',
-                                    tags: ['Prakerja', 'SPL'],
-                                    onTap: () {},
+                            Obx(() {
+                              final controller = Get.find<ClassController>();
+
+                              if (controller.isLoading) {
+                                return SizedBox(
+                                  height: 300,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.primary,
+                                    ),
                                   ),
-                                  SizedBox(width: 16),
-                                  HomeClassCard(
-                                    imageUrl: 'assets/images/class_3.png',
-                                    title:
-                                        'Teknik Pemilahan dan Pengolahan Sampah',
-                                    rating: 4.5,
-                                    price: 'Rp 1.500.000',
-                                    tags: ['Prakerja', 'SPL'],
-                                    onTap: () {},
+                                );
+                              }
+
+                              // Filter courses with thumbnail, only take first 3
+                              final coursesWithThumbnail = controller.courses
+                                  .where(
+                                    (course) =>
+                                        course.thumbnail != null &&
+                                        course.thumbnail!.isNotEmpty,
+                                  )
+                                  .take(3)
+                                  .toList();
+
+                              if (coursesWithThumbnail.isEmpty) {
+                                return SizedBox(
+                                  height: 300,
+                                  child: Center(
+                                    child: Text(
+                                      'Belum ada kelas tersedia',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        color: Color(0xFF6B7280),
+                                      ),
+                                    ),
                                   ),
-                                  SizedBox(width: 16),
-                                  HomeClassCard(
-                                    imageUrl: 'assets/images/class_3.png',
-                                    title:
-                                        'Teknik Pemilahan dan Pengolahan Sampah',
-                                    rating: 4.5,
-                                    price: 'Rp 1.500.000',
-                                    tags: ['Prakerja', 'SPL'],
-                                    onTap: () {},
-                                  ),
-                                ],
-                              ),
-                            ),
+                                );
+                              }
+
+                              return SizedBox(
+                                height: 300,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: coursesWithThumbnail.length,
+                                  separatorBuilder: (context, index) =>
+                                      SizedBox(width: 16),
+                                  itemBuilder: (context, index) {
+                                    final course = coursesWithThumbnail[index];
+                                    final rating =
+                                        double.tryParse(course.rating ?? '0') ??
+                                        0.0;
+
+                                    return HomeClassCard(
+                                      imageUrl: course.thumbnail ?? '',
+                                      title: course.name,
+                                      rating: rating > 0
+                                          ? rating
+                                          : 4.5, // Default to 4.5
+                                      price: 'Rp ${course.price}',
+                                      tags: course.categoryTag,
+                                      isAsset: false,
+                                      onTap: () {
+                                        // TODO: Navigate to course detail
+                                        print('Course ${course.id} tapped');
+                                      },
+                                    );
+                                  },
+                                ),
+                              );
+                            }),
 
                             SizedBox(height: 16),
 
