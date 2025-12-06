@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:luarsekolah/core/constants/app_colors.dart';
 import 'package:luarsekolah/features/home/widgets/user_header.dart';
 import 'package:luarsekolah/features/home/widgets/custom_media_card.dart';
 import 'package:luarsekolah/features/home/widgets/home_class_card.dart';
 import 'package:luarsekolah/features/home/widgets/menu_item_card.dart';
+import 'package:luarsekolah/features/home/widgets/project_card.dart';
+import 'package:luarsekolah/features/home/widgets/article_card.dart';
+import 'package:luarsekolah/shared/widgets/custom_button.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -393,6 +397,174 @@ class _HomePageState extends State<HomePage> {
                                 fontSize: 14,
                                 fontWeight: FontWeight.w400,
                                 color: Colors.blue,
+                              ),
+                            ),
+
+                            SizedBox(height: 24),
+
+                            // SECTION MAGANG+
+                            Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                    'assets/images/img_home_2.png',
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: 200,
+                                      child: Text(
+                                        'Ikut magang bisa auto lolos?\nBisa Banget! Daftar di magang+ sekarang.',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF333333),
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 16),
+                                    CustomButton(
+                                      text: 'Lihat Program Magang',
+                                      backgroundColor: AppColors.btnPrimary,
+                                      textColor: Colors.white,
+                                      width: 200,
+                                      height: 45,
+                                      borderRadius: 8,
+                                      textStyle: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        // TODO: Navigate to Magang+ page
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Program Magang - Coming Soon',
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: 24),
+
+                            // HORIZONTAL PROJECT CARDS
+                            SizedBox(
+                              height: 310,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                children: [
+                                  ProjectCard(
+                                    batchInfo: 'Batch Maret (2 bulan)',
+                                    projectTitle:
+                                        'Membuat Dashboard SaaS magang',
+                                    organizer: 'Luarsekolah',
+                                    quota: 'Kuota untuk 100 Peserta',
+                                    onTap: () {
+                                      // TODO: Navigate to project detail
+                                    },
+                                  ),
+                                  SizedBox(width: 16),
+                                  ProjectCard(
+                                    batchInfo: 'Batch April (3 bulan)',
+                                    projectTitle:
+                                        'Membuat Aplikasi Mobile E-Commerce',
+                                    organizer: 'Luarsekolah',
+                                    quota: 'Kuota untuk 50 Peserta',
+                                    onTap: () {
+                                      // TODO: Navigate to project detail
+                                    },
+                                  ),
+                                  SizedBox(width: 16),
+                                  ProjectCard(
+                                    batchInfo: 'Batch Mei (2 bulan)',
+                                    projectTitle:
+                                        'Membuat Website Company Profile',
+                                    organizer: 'Luarsekolah',
+                                    quota: 'Kuota untuk 75 Peserta',
+                                    onTap: () {
+                                      // TODO: Navigate to project detail
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            SizedBox(height: 24),
+
+                            // ARTIKEL SECTION
+                            Text(
+                              'Artikel',
+                              style: GoogleFonts.inter(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF333333),
+                              ),
+                            ),
+
+                            SizedBox(height: 16),
+
+                            // HORIZONTAL ARTICLE CARDS
+                            SizedBox(
+                              height: 314,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                children: [
+                                  ArticleCard(
+                                    imageUrl: 'assets/images/article_image.png',
+                                    title:
+                                        'Penpot\'s Flex Layout: Building CSS Layouts In...',
+                                    excerpt:
+                                        'In today\'s article, let\'s explore how we can use Fl...',
+                                    onTap: () {
+                                      // TODO: Navigate to article detail
+                                    },
+                                  ),
+                                  SizedBox(width: 16),
+                                  ArticleCard(
+                                    imageUrl: 'assets/images/article_image.png',
+                                    title:
+                                        'Penpot\'s Flex Layout: Building Amazing Layouts',
+                                    excerpt:
+                                        'In today\'s article, let\'s explore how we can use Fl...',
+                                    onTap: () {
+                                      // TODO: Navigate to article detail
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            SizedBox(height: 16),
+
+                            // Lihat Semua Link
+                            GestureDetector(
+                              onTap: () {
+                                // TODO: Navigate to all articles page
+                              },
+                              child: Text(
+                                'Lihat Semua',
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.blueLink,
+                                ),
                               ),
                             ),
 

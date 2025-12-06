@@ -14,6 +14,7 @@ class CustomButton extends StatelessWidget {
   final double fontSize;
   final FontWeight fontWeight;
   final double? iconSpacing;
+  final TextStyle? textStyle;
 
   const CustomButton({
     Key? key,
@@ -30,6 +31,7 @@ class CustomButton extends StatelessWidget {
     this.fontSize = 16,
     this.fontWeight = FontWeight.w500,
     this.iconSpacing = 8,
+    this.textStyle,
   }) : super(key: key);
 
   @override
@@ -63,11 +65,13 @@ class CustomButton extends StatelessWidget {
                       Flexible(
                         child: Text(
                           text,
-                          style: TextStyle(
-                            fontSize: fontSize,
-                            fontWeight: fontWeight,
-                            color: textColor,
-                          ),
+                          style:
+                              textStyle ??
+                              TextStyle(
+                                fontSize: fontSize,
+                                fontWeight: fontWeight,
+                                color: textColor,
+                              ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -75,11 +79,13 @@ class CustomButton extends StatelessWidget {
                   )
                 : Text(
                     text,
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      fontWeight: fontWeight,
-                      color: textColor,
-                    ),
+                    style:
+                        textStyle ??
+                        TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: fontWeight,
+                          color: textColor,
+                        ),
                     textAlign: TextAlign.center,
                   )),
       ),
