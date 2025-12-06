@@ -81,9 +81,32 @@ class FirebaseAuthService {
     return _firestore.collection('users').doc(uid).snapshots();
   }
 
-  // Reload current user
-  Future<void> reloadUser() async {
-    await currentUser?.reload();
+  // Update user data in Firestore
+  Future<void> updateUserData({
+    required String uid,
+    String? name,
+    DateTime? birthDate,
+    String? address,
+    String? gender,
+    String? jobStatus,
+  }) async {
+    try {
+      final updateData = <String, dynamic>{
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (name != null) updateData['name'] = name;
+      if (birthDate != null) {
+        updateData['birthDate'] = Timestamp.fromDate(birthDate);
+      }
+      if (address != null) updateData['address'] = address;
+      if (gender != null) updateData['gender'] = gender;
+      if (jobStatus != null) updateData['jobStatus'] = jobStatus;
+
+      await _firestore.collection('users').doc(uid).update(updateData);
+    } catch (e) {
+      throw Exception('Gagal mengupdate data pengguna: $e');
+    }
   }
 
   // Send password reset email
@@ -92,20 +115,6 @@ class FirebaseAuthService {
       await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
-    }
-  }
-
-  // Update user profile (displayName)
-  Future<void> updateUserProfile({
-    String? displayName,
-    String? photoURL,
-  }) async {
-    try {
-      await currentUser?.updateDisplayName(displayName);
-      await currentUser?.updatePhotoURL(photoURL);
-      await reloadUser();
-    } catch (e) {
-      throw Exception('Gagal mengupdate profile: $e');
     }
   }
 
